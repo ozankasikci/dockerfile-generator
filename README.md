@@ -12,7 +12,7 @@ import dfg "github.com/ozankasikci/dockerfile-generator"
 func main() {
 	data := &dfg.DockerfileData{
 		Stages: []dfg.Stage{
-            // Stage 1 - Builder Image
+    			// Stage 1 - Builder Image
 			[]dfg.Instruction{
 				dfg.From{
 					Image: "golang:1.7.3", As: "builder",
@@ -30,7 +30,7 @@ func main() {
 					Params: []string{"CGO_ENABLED=0", "GOOS=linux", "go", "build", "-a", "-installsuffix", "cgo", "-o", "app", "."},
 				},
 			},
-            // Stage 2 - Final Image
+            		// Stage 2 - Final Image
 			[]dfg.Instruction{
 				dfg.From{
 					Image: "alpine:latest", As: "final",
