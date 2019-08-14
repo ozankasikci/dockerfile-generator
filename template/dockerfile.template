@@ -1,0 +1,33 @@
+ {{ range .Stages -}}
+ FROM {{ .From }} {{ if .As  }} as {{ .As }} {{- end }}
+
+ {{ range .Args -}}
+ ARG {{ .Name -}} {{ if .Value }}={{ .Value }} {{- end }}
+ {{ if .Test -}} RUN test -n "${{ .Name }}" {{- end }}
+ {{- end }}
+
+ {{ range .EnvVariables -}}
+ ENV {{ .Name }}= {{- if .Value }} {{ .Value }} {{ else -}} "${{ .Name }}" {{ end }}
+ {{- end}}
+
+ {{ if .Workdir -}}
+ WORKDIR {{ .Workdir }}
+ {{- end }}
+
+ {{ range .RunCommands -}}
+ RUN {{ .Command }}
+ {{- end }}
+
+ {{ range .CopyCommands -}}
+ COPY {{ .Command }}
+ {{- end }}
+
+ {{ if .Cmd -}}
+ CMD {{ .Cmd.Command }}
+ {{- end }}
+
+ {{ if .Expose -}}
+ EXPOSE {{ .Expose }}
+ {{- end }}
+
+ {{ end }}
