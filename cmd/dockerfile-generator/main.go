@@ -8,6 +8,7 @@ import (
 func main() {
 	data := &dfg.DockerfileData{
 		Stages: []dfg.Stage{
+			// Stage 1 - Builder
 			[]dfg.Instruction{
 				dfg.From{
 					Image: "golang:1.7.3", As: "builder",
@@ -25,6 +26,7 @@ func main() {
 					Params: []string{"CGO_ENABLED=0", "GOOS=linux", "go", "build", "-a", "-installsuffix", "cgo", "-o", "app", "."},
 				},
 			},
+			// Stage 2 - Final
 			[]dfg.Instruction{
 				dfg.From{
 					Image: "alpine:latest", As: "final",
