@@ -1,34 +1,34 @@
 package main
 
 import (
-	"github.com/ozankasikci/dockerfile-generator/pkg"
+	"github.com/ozankasikci/dockerfile-generator"
 	"os"
 )
 
 func main() {
-	dataMap := &pkg.DockerfileData{
-		Stages: []pkg.Stage{
-			[]pkg.Instruction{
-				pkg.From{Image: "node:8.15.0-alpine", As: "builder"},
-				pkg.Arg{Name: "WORKDIR", Value: "/app"},
-				pkg.Arg{Name: "VIEWER_DIR", Value: "$WORKDIR/client"},
-				pkg.Workdir{Dir: "$WORKDIR"},
-				pkg.RunCommand{Params: []string{"apk add --no-cache python py-pip git curl openssh"}},
-				pkg.Arg{Name: "TARGET_GIT_BRANCH", Test: true},
-				pkg.RunCommand{Params: []string{"mkdir", "/root/.ssh/"}},
-				pkg.RunCommand{Params: []string{"echo", "\"${SSH_KEY}\"", ">", "/root/.ssh"}},
-				pkg.RunCommand{Params: []string{"chmod", "600", ">", "/root/.ssh"}},
+	dataMap := &dockerfile_generator.DockerfileData{
+		Stages: []dockerfile_generator.Stage{
+			[]dockerfile_generator.Instruction{
+				dockerfile_generator.From{Image: "node:8.15.0-alpine", As: "builder"},
+				dockerfile_generator.Arg{Name: "WORKDIR", Value: "/app"},
+				dockerfile_generator.Arg{Name: "VIEWER_DIR", Value: "$WORKDIR/client"},
+				dockerfile_generator.Workdir{Dir: "$WORKDIR"},
+				dockerfile_generator.RunCommand{Params: []string{"apk add --no-cache python py-pip git curl openssh"}},
+				dockerfile_generator.Arg{Name: "TARGET_GIT_BRANCH", Test: true},
+				dockerfile_generator.RunCommand{Params: []string{"mkdir", "/root/.ssh/"}},
+				dockerfile_generator.RunCommand{Params: []string{"echo", "\"${SSH_KEY}\"", ">", "/root/.ssh"}},
+				dockerfile_generator.RunCommand{Params: []string{"chmod", "600", ">", "/root/.ssh"}},
 			},
-			[]pkg.Instruction{
-				pkg.From{Image: "nginx:1.14-pearl", As: "final"},
-				pkg.Arg{Name: "WORKDIR", Value: "/app"},
-				pkg.Arg{Name: "INSTALL_DIR", Value: "/opt/company"},
-				pkg.CopyCommand{From: "builder", Sources: []string{"$CMD/build"}, Destination: "$BUILD_DIR"},
-				pkg.Cmd{Params: []string{"nginx", "-g", "daemon off;"}},
+			[]dockerfile_generator.Instruction{
+				dockerfile_generator.From{Image: "nginx:1.14-pearl", As: "final"},
+				dockerfile_generator.Arg{Name: "WORKDIR", Value: "/app"},
+				dockerfile_generator.Arg{Name: "INSTALL_DIR", Value: "/opt/company"},
+				dockerfile_generator.CopyCommand{From: "builder", Sources: []string{"$CMD/build"}, Destination: "$BUILD_DIR"},
+				dockerfile_generator.Cmd{Params: []string{"nginx", "-g", "daemon off;"}},
 			},
 		},
 	}
-	tmpl := pkg.NewDockerFileTemplate(dataMap)
+	tmpl := dockerfile_generator.NewDockerFileTemplate(dataMap)
 	err := tmpl.Render(os.Stdout)
 
 	if err != nil {

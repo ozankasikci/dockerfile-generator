@@ -1,4 +1,4 @@
-package pkg
+package dockerfile_generator
 
 import (
 	"io"
