@@ -1,42 +1,25 @@
-package dockerfile_template
+package dockerfile_generator
 
 import (
 	"fmt"
 	"strings"
 )
 
+type RunForm string
+const (
+	ExecForm RunForm = "ExecForm"
+	ShellForm RunForm = "ShellForm"
+)
+
 type Instruction interface {
 	Render() string
 }
-
-type DockerfileDataSlice struct {
-	Stages []StageSlice
-}
-
-type StageSlice []Instruction
 
 type DockerfileData struct {
 	Stages []Stage
 }
 
-type Stage struct {
-	BuildArgs    []Arg
-	From         From
-	Labels       []Label
-	User         string
-	RunCommands  []RunCommand
-	Workdir      string
-	EnvVariables []EnvVariable
-	CopyCommands []CopyCommand
-	Volumes      []Volume
-	Cmd          *Cmd
-	Entrypoint   *Entrypoint
-	Onbuild      *Onbuild
-	HealthCheck  *HealthCheck
-	Shell        *Shell
-	StopSignal   string
-	Expose       string
-}
+type Stage []Instruction
 
 type Arg struct {
 	Name  string
@@ -98,10 +81,15 @@ func (v Volume) Render() string {
 
 type RunCommand struct {
 	Params
+	RunForm
 }
 
 func (r RunCommand) Render() string {
-	return fmt.Sprintf("RUN %s", r.ExecForm())
+	if r.RunForm == "" || r.RunForm == ShellForm {
+		return fmt.Sprintf("RUN %s", r.ShellForm())
+	} else {
+		return fmt.Sprintf("RUN %s", r.ExecForm())
+	}
 }
 
 type EnvVariable struct {
@@ -117,10 +105,15 @@ type CopyCommand struct {
 	Sources []string
 	Destination string
 	Chown string
+	From string
 }
 
 func (c CopyCommand) Render() string {
 	res := "COPY"
+
+	if c.From != "" {
+		res = fmt.Sprintf("%s --from=%s", res, c.From)
+	}
 
 	if c.Chown != "" {
 		res = fmt.Sprintf("%s --chown=%s", res, c.Chown)
@@ -170,6 +163,14 @@ type Shell struct {
 
 func (s Shell) Render() string {
 	return fmt.Sprintf("SHELL %s", s.ExecForm())
+}
+
+type Workdir struct {
+	Dir string
+}
+
+func (w Workdir) Render() string {
+	return fmt.Sprintf("WORKDIR %s", w.Dir)
 }
 
 type Params []string

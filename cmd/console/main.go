@@ -1,81 +1,35 @@
 package main
 
 import (
-	dft "dockerfile-template/pkg/dockerfile-template"
+	dft "dockerfile-generator/pkg/dockerfile-generator"
 	"os"
 )
 
 func main() {
-	//_ = &dft.DockerfileData{
-	//	Stages: []dft.Stage{
-	//		{
-	//			User: "User 1",
-	//			From: dft.From{
-	//				Image: "image:latest",
-	//				As:    "Base image",
-	//			},
-	//			Workdir:    "adf",
-	//			Expose:     "80/tcp",
-	//			StopSignal: "TERM",
-	//			BuildArgs: []dft.Arg{
-	//				{"test", "vale", true},
-	//			},
-	//			EnvVariables: []dft.EnvVariable{
-	//				{Name: "test"},
-	//			},
-	//			RunCommands: []dft.RunCommand{
-	//				{Params: dft.Params{Params: []string{"cmd1", "cmd2"}}},
-	//			},
-	//			CopyCommands: []dft.CopyCommand{
-	//				{Command: "tesjt3"},
-	//			},
-	//			Cmd: &dft.Cmd{
-	//				Params: dft.Params{Params: []string{"cmd1", "cmd2"}},
-	//			},
-	//			Entrypoint: &dft.Entrypoint{
-	//				Params: dft.Params{Params: []string{"entrypoint", "param"}},
-	//			},
-	//			Onbuild: &dft.Onbuild{
-	//				Params: dft.Params{Params: []string{"RUN", "echo", "1"}},
-	//			},
-	//			HealthCheck: &dft.HealthCheck{
-	//				Params: dft.Params{Params: []string{"--interval=DURATION", "CMD", "command"}},
-	//			},
-	//			Shell: &dft.Shell{
-	//				Params: dft.Params{Params: []string{"powershell", "command"}},
-	//				RunCommands: []dft.RunCommand{
-	//					{Params: dft.Params{Params: []string{"shell cmd 1", "shell cmd 2"}}},
-	//				},
-	//			},
-	//			Volumes: []dft.Volume{
-	//				{Source: "/App", Destination: "/opt/App"},
-	//			},
-	//		},
-	//	},
-	//}
-
-	//tmpl := dft.NewDockerFileTemplate(data)
-	//err := tmpl.Render(os.Stdout, "template/dockerfile.template")
-
-	dataMap := &dft.DockerfileDataSlice{
-		Stages: []dft.StageSlice{
+	dataMap := &dft.DockerfileData{
+		Stages: []dft.Stage{
 			[]dft.Instruction{
 				dft.From{Image: "node:8.15.0-alpine", As: "builder"},
-				dft.Arg{ Name: "WORKDIR", Value: "/app" },
-				dft.Arg{ Name: "VIEWER_DIR", Value: "$WORKDIR/client" },
-				dft.RunCommand{
-					Params: []string{"dsf"},
-				},
+				dft.Arg{Name: "WORKDIR", Value: "/app"},
+				dft.Arg{Name: "VIEWER_DIR", Value: "$WORKDIR/client"},
+				dft.Workdir{Dir: "$WORKDIR"},
+				dft.RunCommand{Params: []string{"apk add --no-cache python py-pip git curl openssh"}},
+				dft.Arg{Name: "TARGET_GIT_BRANCH", Test: true},
+				dft.RunCommand{Params: []string{"mkdir", "/root/.ssh/"}},
+				dft.RunCommand{Params: []string{"echo", "\"${SSH_KEY}\"", ">", "/root/.ssh"}},
+				dft.RunCommand{Params: []string{"chmod", "600", ">", "/root/.ssh"}},
 			},
 			[]dft.Instruction{
-				dft.From{Image: "debian", As: "real"},
-				dft.RunCommand{
-					Params: []string{"dsf"}},
+				dft.From{Image: "nginx:1.14-pearl", As: "final"},
+				dft.Arg{Name: "WORKDIR", Value: "/app"},
+				dft.Arg{Name: "INSTALL_DIR", Value: "/opt/company"},
+				dft.CopyCommand{From: "builder", Sources: []string{"$CMD/build"}, Destination: "$BUILD_DIR"},
+				dft.Cmd{Params: []string{"nginx", "-g", "daemon off;"}},
 			},
 		},
 	}
-	tmpl := dft.NewDockerFileMapTemplate(dataMap)
-	err := tmpl.Render(os.Stdout, "template/dockerfile.map.template")
+	tmpl := dft.NewDockerFileTemplate(dataMap)
+	err := tmpl.Render(os.Stdout, "template/dockerfile.template")
 
 	if err != nil {
 		println(err.Error())

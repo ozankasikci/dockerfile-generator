@@ -1,4 +1,4 @@
-package dockerfile_template
+package dockerfile_generator
 
 import (
 	"io"
