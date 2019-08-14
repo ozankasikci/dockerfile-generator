@@ -15,6 +15,8 @@ type Instruction interface {
 	Render() string
 }
 
+// DockerfileData struct can hold multiple stages for a multi-staged Dockerfile
+// Check https://docs.docker.com/develop/develop-images/multistage-build/ for more information
 type DockerfileData struct {
 	Stages []Stage
 }
