@@ -13,8 +13,9 @@ func NewDockerFileTemplate(data *DockerfileData) *DockerFileTemplate {
     return &DockerFileTemplate{ Data: data }
 }
 
-func (d *DockerFileTemplate) Render(writer io.Writer, templateFilePath string) error {
+func (d *DockerFileTemplate) Render(writer io.Writer) error {
 	funcMap := template.FuncMap{}
+	templateFilePath := "pkg/template/dockerfile.template"
 
 	tmpl, err := template.New("dockerfile.template").Funcs(funcMap).ParseFiles(templateFilePath)
 	if err != nil {

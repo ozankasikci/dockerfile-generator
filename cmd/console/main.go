@@ -29,7 +29,7 @@ func main() {
 		},
 	}
 	tmpl := dft.NewDockerFileTemplate(dataMap)
-	err := tmpl.Render(os.Stdout, "template/dockerfile.template")
+	err := tmpl.Render(os.Stdout)
 
 	if err != nil {
 		println(err.Error())
