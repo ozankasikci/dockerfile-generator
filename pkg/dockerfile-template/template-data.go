@@ -5,24 +5,38 @@ import (
 	"strings"
 )
 
-type DockerfileData struct {
-	Stages []Stage
+type Instruction interface {
+	Render() string
 }
 
-type Stage struct {
-	BuildArgs    []Arg
-	From         From
-	Labels       []Label
-	User         string
-	RunCommands  []RunCommand
-	Workdir      string
-	EnvVariables []EnvVariable
-	CopyCommands []CopyCommand
-	Volumes      []Volume
-	Cmd          *Cmd
-	Entrypoint   *Entrypoint
-	Expose       string
+type DockerfileDataSlice struct {
+	Stages []StageSlice
 }
+
+type StageSlice []Instruction
+
+//type DockerfileData struct {
+//	Stages []Stage
+//}
+
+//type Stage struct {
+//	BuildArgs    []Arg
+//	From         From
+//	Labels       []Label
+//	User         string
+//	RunCommands  []RunCommand
+//	Workdir      string
+//	EnvVariables []EnvVariable
+//	CopyCommands []CopyCommand
+//	Volumes      []Volume
+//	Cmd          *Cmd
+//	Entrypoint   *Entrypoint
+//	Onbuild      *Onbuild
+//	HealthCheck  *HealthCheck
+//	Shell        *Shell
+//	StopSignal   string
+//	Expose       string
+//}
 
 type Arg struct {
 	Name  string
@@ -33,6 +47,16 @@ type Arg struct {
 type From struct {
 	Image string
 	As    string
+}
+
+func (f From) Render() string {
+	res := fmt.Sprintf("FROM %s", f.Image)
+
+	if f.As != "" {
+		res = fmt.Sprintf("%s as %s", res, f.As)
+	}
+
+	return res
 }
 
 type Label struct {
@@ -46,7 +70,11 @@ type Volume struct {
 }
 
 type RunCommand struct {
-	Command string
+	Params
+}
+
+func (r RunCommand) Render() string {
+	return fmt.Sprintf("RUN %s", r.ExecForm())
 }
 
 type EnvVariable struct {
@@ -59,27 +87,38 @@ type CopyCommand struct {
 }
 
 type Cmd struct {
-	ShellExecForm
+	Params
 }
 
 type Entrypoint struct {
-	ShellExecForm
+	Params
 }
 
-type ShellExecForm struct {
-	Params []string
+type Onbuild struct {
+	Params
 }
 
-func (e ShellExecForm) MapParams(f func(string) string) []string {
-	res := make([]string, len(e.Params))
-	for i, v := range e.Params {
+type HealthCheck struct {
+	Params
+}
+
+type Shell struct {
+	Params
+	RunCommands []RunCommand
+}
+
+type Params []string
+
+func (p Params) mapParams(f func(string) string) []string {
+	res := make([]string, len(p))
+	for i, v := range p {
 		res[i] = f(v)
 	}
 	return res
 }
 
-func (e ShellExecForm) ExecForm() string {
-	params := e.MapParams(func(s string) string {
+func (p Params) ExecForm() string {
+	params := p.mapParams(func(s string) string {
 		return fmt.Sprintf("\"%s\"", s)
 	})
 
@@ -89,7 +128,6 @@ func (e ShellExecForm) ExecForm() string {
 	return execFormString
 }
 
-func (e ShellExecForm) ShellForm() string {
-	return strings.Join(e.Params, " ")
+func (p Params) ShellForm() string {
+	return strings.Join(p, " ")
 }
-

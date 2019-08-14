@@ -23,7 +23,7 @@ WORKDIR {{ .Workdir }}
 {{- end }}
 
 {{ range .RunCommands -}}
-RUN {{ .Command }}
+RUN {{ .ShellForm }}
 {{- end }}
 
 {{ range .CopyCommands -}}
@@ -40,6 +40,25 @@ ENTRYPOINT {{ .Entrypoint.ShellForm }}
 
 {{ if .Cmd -}}
 CMD {{ .Cmd.ExecForm }}
+{{- end }}
+
+{{ if .Shell -}}
+SHELL {{ .Shell.ExecForm }}
+{{ range .RunCommands -}}
+RUN {{ .ExecForm }}
+{{- end }}
+{{- end }}
+
+{{ if .Onbuild -}}
+ONBUILD {{ .Onbuild.ShellForm }}
+{{- end }}
+
+{{ if .StopSignal -}}
+STOPSIGNAL {{ .StopSignal }}
+{{- end }}
+
+{{ if .HealthCheck -}}
+HEALTHCHECK {{ .HealthCheck.ShellForm }}
 {{- end }}
 
 {{ if .Expose -}}
