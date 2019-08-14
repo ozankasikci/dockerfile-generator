@@ -1,5 +1,0 @@
-{{ range .Stages -}}
-{{ range . }}
-{{ .Render }}
-{{- end }}
-{{ end }}

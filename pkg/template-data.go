@@ -1,4 +1,4 @@
-package dockerfile_generator
+package pkg
 
 import (
 	"fmt"
