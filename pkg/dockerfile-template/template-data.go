@@ -15,33 +15,52 @@ type DockerfileDataSlice struct {
 
 type StageSlice []Instruction
 
-//type DockerfileData struct {
-//	Stages []Stage
-//}
+type DockerfileData struct {
+	Stages []Stage
+}
 
-//type Stage struct {
-//	BuildArgs    []Arg
-//	From         From
-//	Labels       []Label
-//	User         string
-//	RunCommands  []RunCommand
-//	Workdir      string
-//	EnvVariables []EnvVariable
-//	CopyCommands []CopyCommand
-//	Volumes      []Volume
-//	Cmd          *Cmd
-//	Entrypoint   *Entrypoint
-//	Onbuild      *Onbuild
-//	HealthCheck  *HealthCheck
-//	Shell        *Shell
-//	StopSignal   string
-//	Expose       string
-//}
+type Stage struct {
+	BuildArgs    []Arg
+	From         From
+	Labels       []Label
+	User         string
+	RunCommands  []RunCommand
+	Workdir      string
+	EnvVariables []EnvVariable
+	CopyCommands []CopyCommand
+	Volumes      []Volume
+	Cmd          *Cmd
+	Entrypoint   *Entrypoint
+	Onbuild      *Onbuild
+	HealthCheck  *HealthCheck
+	Shell        *Shell
+	StopSignal   string
+	Expose       string
+}
 
 type Arg struct {
 	Name  string
 	Value string
 	Test  bool
+	EnvVariable bool
+}
+
+func (a Arg) Render() string {
+	res := fmt.Sprintf("ARG %s", a.Name)
+
+	if	a.Value != "" {
+		res = fmt.Sprintf("%s=%s", res, a.Value)
+	}
+
+	if a.Test {
+		res = fmt.Sprintf("%s\nRUN test -n \"${%s}\"", res, a.Name)
+	}
+
+	if	a.EnvVariable {
+		res = fmt.Sprintf("%s\nENV %s=\"${%s}\"", a.Name)
+	}
+
+	return res
 }
 
 type From struct {
@@ -64,9 +83,17 @@ type Label struct {
 	Value string
 }
 
+func (l Label) Render() string {
+	return fmt.Sprintf("LABEL %s=%s", l.Name, l.Value)
+}
+
 type Volume struct {
 	Source      string
 	Destination string
+}
+
+func (v Volume) Render() string {
+	return fmt.Sprintf("VOLUME %s %s", v.Source, v.Destination)
 }
 
 type RunCommand struct {
@@ -82,29 +109,67 @@ type EnvVariable struct {
 	Value string
 }
 
+func (e EnvVariable) Render() string {
+	return fmt.Sprintf("ENV %s=%s", e.Name, e.Value)
+}
+
 type CopyCommand struct {
-	Command string
+	Sources []string
+	Destination string
+	Chown string
+}
+
+func (c CopyCommand) Render() string {
+	res := "COPY"
+
+	if c.Chown != "" {
+		res = fmt.Sprintf("%s --chown=%s", res, c.Chown)
+	}
+
+	sources := strings.Join(c.Sources, " ")
+	res = fmt.Sprintf("%s %s %s", res, sources, c.Destination)
+
+	return res
 }
 
 type Cmd struct {
 	Params
 }
 
+func (c Cmd) Render() string {
+	return fmt.Sprintf("CMD %s", c.ExecForm())
+}
+
 type Entrypoint struct {
 	Params
+}
+
+func (e Entrypoint) Render() string {
+	return fmt.Sprintf("ENTRYPOINT %s", e.ExecForm())
 }
 
 type Onbuild struct {
 	Params
 }
 
+func (o Onbuild) Render() string {
+	return fmt.Sprintf("ONBUILD %s", o.ShellForm())
+}
+
 type HealthCheck struct {
 	Params
 }
 
+func (h HealthCheck) Render() string {
+	return fmt.Sprintf("HEALTHCHECK %s", h.ShellForm())
+}
+
 type Shell struct {
 	Params
-	RunCommands []RunCommand
+}
+
+func (s Shell) Render() string {
+	return fmt.Sprintf("SHELL %s", s.ExecForm())
 }
 
 type Params []string

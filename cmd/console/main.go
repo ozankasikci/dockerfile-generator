@@ -60,17 +60,20 @@ func main() {
 	dataMap := &dft.DockerfileDataSlice{
 		Stages: []dft.StageSlice{
 			[]dft.Instruction{
-				dft.From{Image: "debian", As: "deb"},
+				dft.From{Image: "node:8.15.0-alpine", As: "builder"},
+				dft.Arg{ Name: "WORKDIR", Value: "/app" },
+				dft.Arg{ Name: "VIEWER_DIR", Value: "$WORKDIR/client" },
 				dft.RunCommand{
-					Params: []string{"dsf"}},
+					Params: []string{"dsf"},
 				},
+			},
 			[]dft.Instruction{
 				dft.From{Image: "debian", As: "real"},
 				dft.RunCommand{
 					Params: []string{"dsf"}},
 			},
-			},
-		}
+		},
+	}
 	tmpl := dft.NewDockerFileMapTemplate(dataMap)
 	err := tmpl.Render(os.Stdout, "template/dockerfile.map.template")
 
