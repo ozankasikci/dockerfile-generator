@@ -3,11 +3,10 @@ package main
 import (
 	dft "dockerfile-template/pkg/dockerfile-template"
 	"os"
-	"text/template"
 )
 
 func main() {
-	data := dft.DockerfileData{
+	data := &dft.DockerfileData{
 		Stages: []dft.Stage{
 			{
 				User: "User 1",
@@ -52,16 +51,6 @@ func main() {
 		},
 	}
 
-	funcMap := template.FuncMap{}
-
-	tmpl, err := template.New("dockerfile.template").Funcs(funcMap).ParseFiles("template/dockerfile.template")
-	if err != nil {
-		println(err)
-	}
-
-	//tmpl := template.Must(template.ParseFiles("template/dockerfile.template"))
-	err = tmpl.Execute(os.Stdout, data)
-	if err != nil {
-		println(err)
-	}
+	tmpl := dft.NewDockerFileTemplate(data)
+	tmpl.Render(os.Stdout, "template/dockerfile.template")
 }
