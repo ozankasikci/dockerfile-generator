@@ -2,6 +2,7 @@ package dockerfile_generator
 
 import (
 	"io"
+	"os"
 	"text/template"
 )
 
@@ -15,7 +16,13 @@ func NewDockerFileTemplate(data *DockerfileData) *DockerFileTemplate {
 
 func (d *DockerFileTemplate) Render(writer io.Writer) error {
 	funcMap := template.FuncMap{}
-	templateFilePath := "pkg/template/dockerfile.template"
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+
+	templateFilePath := wd + "/pkg/template/dockerfile.template"
 
 	tmpl, err := template.New("dockerfile.template").Funcs(funcMap).ParseFiles(templateFilePath)
 	if err != nil {
