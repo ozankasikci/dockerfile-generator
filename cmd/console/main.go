@@ -1,7 +1,7 @@
 package main
 
 import (
-	dft "dockerfile-generator/pkg/dockerfile-generator"
+	dft "github.com/ozankasikci/dockerfile-generator/pkg/dockerfile-generator"
 	"os"
 )
 

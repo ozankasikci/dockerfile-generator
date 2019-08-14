@@ -1,3 +1,3 @@
-module github.com/ozankasikci/dockerfile-generator
+module dockerfile_generator
 
 go 1.12
