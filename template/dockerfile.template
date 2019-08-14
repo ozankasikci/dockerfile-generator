@@ -1,33 +1,49 @@
- {{ range .Stages -}}
- FROM {{ .From }} {{ if .As  }} as {{ .As }} {{- end }}
+{{ range .Stages -}}
+FROM {{ .From.Image }} {{- if .From.As }} as {{ .From.As }} {{- end }}
 
- {{ range .Args -}}
- ARG {{ .Name -}} {{ if .Value }}={{ .Value }} {{- end }}
- {{ if .Test -}} RUN test -n "${{ .Name }}" {{- end }}
- {{- end }}
+{{ range .Labels -}}
+LABEL {{ .Name -}} {{ if .Value }}="{{ .Value }}" {{- end }}
+{{- end }}
 
- {{ range .EnvVariables -}}
- ENV {{ .Name }}= {{- if .Value }} {{ .Value }} {{ else -}} "${{ .Name }}" {{ end }}
- {{- end}}
+{{ if .User -}}
+USER {{ .User}}
+{{- end }}
 
- {{ if .Workdir -}}
- WORKDIR {{ .Workdir }}
- {{- end }}
+{{ range .BuildArgs -}}
+ARG {{ .Name -}} {{ if .Value }}={{ .Value }} {{- end }}
+{{ if .Test -}} RUN test -n "${{ .Name }}" {{- end }}
+{{- end }}
 
- {{ range .RunCommands -}}
- RUN {{ .Command }}
- {{- end }}
+{{ range .EnvVariables -}}
+ENV {{ .Name }}= {{- if .Value }} {{ .Value }} {{ else -}} "${{ .Name }}" {{ end }}
+{{- end}}
 
- {{ range .CopyCommands -}}
- COPY {{ .Command }}
- {{- end }}
+{{ if .Workdir -}}
+WORKDIR {{ .Workdir }}
+{{- end }}
 
- {{ if .Cmd -}}
- CMD {{ .Cmd.Command }}
- {{- end }}
+{{ range .RunCommands -}}
+RUN {{ .Command }}
+{{- end }}
 
- {{ if .Expose -}}
- EXPOSE {{ .Expose }}
- {{- end }}
+{{ range .CopyCommands -}}
+COPY {{ .Command }}
+{{- end }}
 
- {{ end }}
+{{ range .Volumes -}}
+VOLUME {{ .Source }} {{ .Destination }}
+{{- end }}
+
+{{ if .Entrypoint -}}
+ENTRYPOINT {{ .Entrypoint.ShellForm }}
+{{- end }}
+
+{{ if .Cmd -}}
+CMD {{ .Cmd.ExecForm }}
+{{- end }}
+
+{{ if .Expose -}}
+EXPOSE {{ .Expose }}
+{{- end }}
+
+{{ end }}
