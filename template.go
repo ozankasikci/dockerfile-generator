@@ -19,12 +19,12 @@ func NewDockerFileTemplate(data *DockerfileData) *DockerFileTemplate {
 // Render iterates through the given dockerfile instruction instances and executes the template.
 // The output would be a generated Dockerfile.
 func (d *DockerFileTemplate) Render(writer io.Writer) error {
-	templateString := `
-{{ range .Stages -}}
-{{ range . }}
-{{ .Render }}
-{{- end }}
-{{ end }}`
+	templateString := "{{- range .Stages -}}" +
+					"{{- range $i, $instruction := . }}" +
+					"{{- if gt $i 0 }}\n{{ end }}" +
+					"{{ $instruction.Render }}\n" +
+					"{{- end }}\n\n" +
+					"{{ end }}"
 
 	tmpl, err := template.New("dockerfile.template").Parse(templateString)
 	if err != nil {
