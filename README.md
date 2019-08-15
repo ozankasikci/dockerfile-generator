@@ -56,6 +56,7 @@ func main() {
 	}
 	tmpl := dfg.NewDockerFileTemplate(data)
 	
+	// write to a file
 	file, err := os.Create("Dockerfile")
 	err = tmpl.Render(file)
 	
