@@ -18,16 +18,16 @@ type Instruction interface {
 // DockerfileData struct can hold multiple stages for a multi-staged Dockerfile
 // Check https://docs.docker.com/develop/develop-images/multistage-build/ for more information
 type DockerfileData struct {
-	Stages []Stage
+	Stages []Stage `yaml:stages`
 }
 
 type Stage []Instruction
 
 type Arg struct {
-	Name  string
-	Value string
-	Test  bool
-	EnvVariable bool
+	Name  string `yaml:name`
+	Value string `yaml:value`
+	Test  bool `yaml:test`
+	EnvVariable bool `yaml: envVariable`
 }
 
 func (a Arg) Render() string {
@@ -42,15 +42,15 @@ func (a Arg) Render() string {
 	}
 
 	if	a.EnvVariable {
-		res = fmt.Sprintf("%s\nENV %s=\"${%s}\"", a.Name)
+		res = fmt.Sprintf("%s\nENV %s=\"${%s}\"", res, a.Name, a.Name)
 	}
 
 	return res
 }
 
 type From struct {
-	Image string
-	As    string
+	Image string `yaml:image`
+	As    string `yaml:as`
 }
 
 func (f From) Render() string {
@@ -64,8 +64,8 @@ func (f From) Render() string {
 }
 
 type Label struct {
-	Name  string
-	Value string
+	Name  string `yaml:name`
+	Value string `yaml:value`
 }
 
 func (l Label) Render() string {
@@ -73,8 +73,8 @@ func (l Label) Render() string {
 }
 
 type Volume struct {
-	Source      string
-	Destination string
+	Source      string `yaml:source`
+	Destination string `yaml:destination`
 }
 
 func (v Volume) Render() string {
@@ -82,8 +82,8 @@ func (v Volume) Render() string {
 }
 
 type RunCommand struct {
-	Params
-	RunForm
+	Params `yaml:params`
+	RunForm `yaml:runForm`
 }
 
 func (r RunCommand) Render() string {
@@ -95,8 +95,8 @@ func (r RunCommand) Render() string {
 }
 
 type EnvVariable struct {
-	Name  string
-	Value string
+	Name  string `yaml:name`
+	Value string `yaml:value`
 }
 
 func (e EnvVariable) Render() string {
@@ -104,10 +104,10 @@ func (e EnvVariable) Render() string {
 }
 
 type CopyCommand struct {
-	Sources []string
-	Destination string
-	Chown string
-	From string
+	Sources []string `yaml:sources`
+	Destination string `yaml:destination`
+	Chown string `yaml:chown`
+	From string `yaml:from`
 }
 
 func (c CopyCommand) Render() string {
@@ -128,7 +128,7 @@ func (c CopyCommand) Render() string {
 }
 
 type Cmd struct {
-	Params
+	Params `yaml:params`
 }
 
 func (c Cmd) Render() string {
@@ -136,7 +136,7 @@ func (c Cmd) Render() string {
 }
 
 type Entrypoint struct {
-	Params
+	Params `yaml:params`
 }
 
 func (e Entrypoint) Render() string {
@@ -144,7 +144,7 @@ func (e Entrypoint) Render() string {
 }
 
 type Onbuild struct {
-	Params
+	Params `yaml:params`
 }
 
 func (o Onbuild) Render() string {
@@ -152,7 +152,7 @@ func (o Onbuild) Render() string {
 }
 
 type HealthCheck struct {
-	Params
+	Params `yaml:params`
 }
 
 func (h HealthCheck) Render() string {
@@ -160,7 +160,7 @@ func (h HealthCheck) Render() string {
 }
 
 type Shell struct {
-	Params
+	Params `yaml:params`
 }
 
 func (s Shell) Render() string {
@@ -168,7 +168,7 @@ func (s Shell) Render() string {
 }
 
 type Workdir struct {
-	Dir string
+	Dir string `yaml:dir`
 }
 
 func (w Workdir) Render() string {
