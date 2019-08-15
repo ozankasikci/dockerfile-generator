@@ -1,4 +1,5 @@
-### Dockerfile Generator
+## Dockerfile Generator
+[![Build Status](https://travis-ci.org/ozankasikci/dockerfile-generator.svg?branch=master)](https://travis-ci.org/ozankasikci/dockerfile-generator)
 
 Automated Dockerfile generation library.
 
