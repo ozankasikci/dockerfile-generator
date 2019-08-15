@@ -2,7 +2,11 @@
 
 Automated Dockerfile generation library.
 
-#### Example
+### Docs
+
+https://godoc.org/github.com/ozankasikci/dockerfile-generator
+
+### Example
 
 ```go
 package main
@@ -55,7 +59,7 @@ func main() {
 }
 ``` 
 
-#### Output
+### Output
 ```Dockerfile
 FROM golang:1.7.3 as builder
 WORKDIR /go/src/github.com/alexellis/href-counter/
