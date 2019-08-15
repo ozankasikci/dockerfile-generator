@@ -17,7 +17,7 @@ func main() {
 	data := &dfg.DockerfileData{
 		Stages: []dfg.Stage{
 			// Stage 1 - Builder Image
-			// An instruction is just an interface, so you pass custom structs as well
+			// An instruction is just an interface, so you can pass custom structs as well
 			[]dfg.Instruction{
 				dfg.From{
 					Image: "golang:1.7.3", As: "builder",
