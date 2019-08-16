@@ -18,16 +18,28 @@ type Instruction interface {
 // DockerfileData struct can hold multiple stages for a multi-staged Dockerfile
 // Check https://docs.docker.com/develop/develop-images/multistage-build/ for more information
 type DockerfileData struct {
-	Stages []Stage `yaml:stages`
+	Stages []Stage `yaml:stages,omitempty`
 }
 
 type Stage []Instruction
 
+func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var data []interface{}
+	var result []Instruction
+	err := unmarshal(&data)
+	if err != nil {
+		return err
+	}
+
+	*s = append(result, cleanUpInterfaceArray(data)...)
+	return nil
+}
+
 type Arg struct {
 	Name  string `yaml:name`
 	Value string `yaml:value`
-	Test  bool `yaml:test`
-	EnvVariable bool `yaml: envVariable`
+	Test  bool `yaml:test,omitempty`
+	EnvVariable bool `yaml:envVariable,omitempty`
 }
 
 func (a Arg) Render() string {
@@ -87,10 +99,14 @@ type RunCommand struct {
 }
 
 func (r RunCommand) Render() string {
-	if r.RunForm == "" || r.RunForm == ShellForm {
-		return fmt.Sprintf("RUN %s", r.ShellForm())
-	} else {
+	if r.RunForm == "" {
+		r.RunForm = ShellForm
+	}
+
+	if r.RunForm == ExecForm {
 		return fmt.Sprintf("RUN %s", r.ExecForm())
+	} else {
+		return fmt.Sprintf("RUN %s", r.ShellForm())
 	}
 }
 
@@ -129,18 +145,36 @@ func (c CopyCommand) Render() string {
 
 type Cmd struct {
 	Params `yaml:params`
+	RunForm `yaml:runForm`
 }
 
 func (c Cmd) Render() string {
-	return fmt.Sprintf("CMD %s", c.ExecForm())
+	if c.RunForm == "" {
+		c.RunForm = ExecForm
+	}
+
+	if c.RunForm == ExecForm {
+		return fmt.Sprintf("CMD %s", c.ExecForm())
+	} else {
+		return fmt.Sprintf("CMD %s", c.ShellForm())
+	}
 }
 
 type Entrypoint struct {
 	Params `yaml:params`
+	RunForm `yaml:runForm`
 }
 
 func (e Entrypoint) Render() string {
-	return fmt.Sprintf("ENTRYPOINT %s", e.ExecForm())
+	if e.RunForm == "" {
+		e.RunForm = ExecForm
+	}
+
+	if e.RunForm == ExecForm {
+		return fmt.Sprintf("ENTRYPOINT %s", e.ExecForm())
+	} else {
+		return fmt.Sprintf("ENTRYPOINT %s", e.ShellForm())
+	}
 }
 
 type Onbuild struct {

@@ -1,0 +1,14 @@
+stages:
+  builder:
+    - from:
+        image: alpine:latest
+        as: builder
+    - arg:
+        name: teeest-atg
+        value: arg-value
+    - label:
+        name: tlabel
+        value: ajdkfjs
+    - volume:
+        source: some source
+        destination: some destination
