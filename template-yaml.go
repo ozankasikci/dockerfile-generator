@@ -1,8 +1,13 @@
 package dockerfile_generator
 
 import (
+	"errors"
 	"fmt"
 )
+
+type DockerfileDataYaml struct {
+	Stages map[string]Stage `yaml:stages`
+}
 
 func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} {
 	v, ok := value.(map[interface{}]interface{})
@@ -19,11 +24,25 @@ func convertMapInterfaceToString(mapInterface map[interface{}]interface{}) map[s
 	for key, value := range mapInterface {
 		strKey := fmt.Sprintf("%v", key)
 		strValue := fmt.Sprintf("%v", value)
-
 		mapString[strKey] = strValue
 	}
 
 	return mapString
+}
+
+func convertSliceInterfaceToString(s interface{}) ([]string, error) {
+	slice, ok := s.([]interface{})
+	if !ok {
+		return nil, errors.New("Invalid type, can't cast interface{} to []interface{}")
+	}
+
+   	res := make([]string, len(slice))
+
+	for i, value := range slice {
+		res[i] = fmt.Sprintf("%v", value)
+	}
+
+	return res, nil
 }
 
 func cleanUpFrom(value map[interface{}]interface{}) From {
@@ -95,12 +114,14 @@ func cleanUpVolume(value map[interface{}]interface{}) Volume {
 }
 
 func cleanUpRunCommand(value map[interface{}]interface{}) RunCommand {
-	v := convertMapInterfaceToString(value)
 	var r RunCommand
+	v := convertMapInterfaceToString(value)
 
-	if v["params"] != "" {
-		r.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse run instruction params!")
 	}
+	r.Params = params
 
 	r.RunForm = RunCommandDefaultRunForm
 	if v["runForm"] == "exec" {
@@ -128,12 +149,14 @@ func cleanUpEnvVariable(value map[interface{}]interface{}) EnvVariable {
 }
 
 func cleanUpCopyCommand(value map[interface{}]interface{}) CopyCommand {
-	v := convertMapInterfaceToString(value)
 	var c CopyCommand
+	v := convertMapInterfaceToString(value)
 
-	if v["sources"] != "" {
-		c.Sources = []string{"source1"}
+	params, err := convertSliceInterfaceToString(value["sources"])
+	if err != nil {
+		panic("Failed to parse copy instruction sources!")
 	}
+	c.Sources = params
 
 	if v["destination"] != "" {
 		c.Destination = v["destination"]
@@ -151,12 +174,14 @@ func cleanUpCopyCommand(value map[interface{}]interface{}) CopyCommand {
 }
 
 func cleanUpCmd(value map[interface{}]interface{}) Cmd {
-	v := convertMapInterfaceToString(value)
 	var c Cmd
+	v := convertMapInterfaceToString(value)
 
-	if v["params"] != "" {
-		c.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse cmd instruction params!")
 	}
+	c.Params = params
 
 	c.RunForm = CmdDefaultRunForm
 	if v["runForm"] == "exec" {
@@ -169,12 +194,14 @@ func cleanUpCmd(value map[interface{}]interface{}) Cmd {
 }
 
 func cleanUpEntrypoint(value map[interface{}]interface{}) Entrypoint {
-	v := convertMapInterfaceToString(value)
 	var e Entrypoint
+	v := convertMapInterfaceToString(value)
 
-	if v["params"] != "" {
-		e.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse entrypoint instruction params!")
 	}
+	e.Params = params
 
 	e.RunForm = EntrypointDefaultRunForm
 	if v["runForm"] == "exec" {
@@ -187,34 +214,37 @@ func cleanUpEntrypoint(value map[interface{}]interface{}) Entrypoint {
 }
 
 func cleanUpOnbuild(value map[interface{}]interface{}) Onbuild {
-	v := convertMapInterfaceToString(value)
 	var o Onbuild
 
-	if v["params"] != "" {
-		o.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse onBuild instruction params!")
 	}
+	o.Params = params
 
 	return o
 }
 
 func cleanUpHealthCheck(value map[interface{}]interface{}) HealthCheck {
-	v := convertMapInterfaceToString(value)
 	var h HealthCheck
 
-	if v["params"] != "" {
-		h.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse healthCheck instruction params!")
 	}
+	h.Params = params
 
 	return h
 }
 
 func cleanUpShell(value map[interface{}]interface{}) Shell {
-	v := convertMapInterfaceToString(value)
 	var s Shell
 
-	if v["params"] != "" {
-		s.Params = []string{"sdf", "adf"}
+	params, err := convertSliceInterfaceToString(value["params"])
+	if err != nil {
+		panic("Failed to parse shell instruction params!")
 	}
+	s.Params = params
 
 	return s
 }

@@ -9,9 +9,9 @@ type RunForm string
 const (
 	ExecForm RunForm = "ExecForm"
 	ShellForm RunForm = "ShellForm"
-	RunCommandDefaultRunForm RunForm = ShellForm
-	CmdDefaultRunForm RunForm = ExecForm
-	EntrypointDefaultRunForm RunForm = ExecForm
+	RunCommandDefaultRunForm = ShellForm
+	CmdDefaultRunForm = ExecForm
+	EntrypointDefaultRunForm = ExecForm
 )
 
 type Instruction interface {

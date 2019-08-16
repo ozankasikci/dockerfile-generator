@@ -2,11 +2,6 @@ package dockerfile_generator
 
 import (
 	"bytes"
-	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"log"
-	"os"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -77,24 +72,35 @@ CMD ["./app"]
 }
 
 func TestYamlRendering(t *testing.T) {
-	type data struct {
-		Stages map[string]Stage `yaml:stages`
-	}
-
-	d := &data{}
-
-	yamlFile, err := ioutil.ReadFile("./example-input-files/input.yaml")
-	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, d)
-	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-	}
-
-	fmt.Printf("%v\n", d.Stages["builder"])
-
-	tmpl := NewDockerFileTemplate(&DockerfileData{Stages: []Stage{d.Stages["builder"]}})
-	err = tmpl.Render(os.Stdout)
+	tmpl := NewDockerFileTemplateFromYamlFile("./example-input-files/input.yaml")
+	output := &bytes.Buffer{}
+	err := tmpl.Render(output)
 	assert.NoError(t, err)
+
+	expectedOutput := `FROM alpine:latest as builder
+WORKDIR /app
+ARG test-arg=arg-value
+RUN test -n "${test-arg}"
+ENV test-arg="${test-arg}"
+VOLUME some/source ./some/destination
+RUN echo "test" 1
+ENV env=dev
+COPY --chown=me:me /etc/conf /opt/app/conf
+ONBUILD echo test
+
+FROM alpine:latest as final
+ARG test-arg=arg-value
+RUN test -n "${test-arg}"
+ENV test-arg="${test-arg}"
+LABEL label1=label-value
+ENV DB_PASSWORD=password
+CMD echo test
+ENTRYPOINT ["echo", "test"]
+HEALTHCHECK --interval=DURATION --timeout=3s CMD curl -f http://localhost/
+SHELL ["powershell", "-command"]
+WORKDIR test dir
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
 }

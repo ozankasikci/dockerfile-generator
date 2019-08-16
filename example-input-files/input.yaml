@@ -3,47 +3,70 @@ stages:
     - from:
         image: alpine:latest
         as: builder
+    - workdir:
+        dir: /app
     - arg:
-        name: teeest-atg
+        name: test-arg
         value: arg-value
-    - label:
-        name: tlabel
-        value: ajdkfjs
+        test: true
+        envVariable: true
     - volume:
-        source: some source
-        destination: some destination
+        source: some/source
+        destination: ./some/destination
     - run:
-        runForm: exec
+        runForm: shell
         params:
           - echo
-          - df
-          - sdfds
+          - '"test"'
+          - 1
     - envVariable:
-        name: tsenv
-        value: kjefvalue
+        name: env
+        value: dev
     - copy:
         sources:
-          - dlsfds
-        destination: destination
+          - /etc/conf
+        destination: /opt/app/conf
         chown: me:me
-        from: whatever
+    - onbuild:
+        params:
+          - echo
+          - test
+  final:
+    - from:
+        image: alpine:latest
+        as: final
+    - arg:
+        name: test-arg
+        value: arg-value
+        test: true
+        envVariable: true
+    - label:
+        name: label1
+        value: label-value
+    - envVariable:
+        name: DB_PASSWORD
+        value: password
     - cmd:
         params:
           - echo
-          - dsfdf
+          - test
         runForm: shell
     - entrypoint:
         params:
           - echo
+          - test
         runForm: exec
-    - onbuild:
-        params:
-          - echo
     - healthCheck:
         params:
-          - echo
+          - --interval=DURATION
+          - --timeout=3s
+          - CMD
+          - curl
+          - -f
+          - http://localhost/
     - shell:
         params:
-          - echo
+          - powershell
+          - -command
     - workdir:
         dir: test dir
