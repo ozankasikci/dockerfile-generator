@@ -12,3 +12,38 @@ stages:
     - volume:
         source: some source
         destination: some destination
+    - run:
+        runForm: exec
+        params:
+          - echo
+          - df
+          - sdfds
+    - envVariable:
+        name: tsenv
+        value: kjefvalue
+    - copy:
+        sources:
+          - dlsfds
+        destination: destination
+        chown: me:me
+        from: whatever
+    - cmd:
+        params:
+          - echo
+          - dsfdf
+        runForm: shell
+    - entrypoint:
+        params:
+          - echo
+        runForm: exec
+    - onbuild:
+        params:
+          - echo
+    - healthCheck:
+        params:
+          - echo
+    - shell:
+        params:
+          - echo
+    - workdir:
+        dir: test dir

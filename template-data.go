@@ -9,6 +9,9 @@ type RunForm string
 const (
 	ExecForm RunForm = "ExecForm"
 	ShellForm RunForm = "ShellForm"
+	RunCommandDefaultRunForm RunForm = ShellForm
+	CmdDefaultRunForm RunForm = ExecForm
+	EntrypointDefaultRunForm RunForm = ExecForm
 )
 
 type Instruction interface {
@@ -100,7 +103,7 @@ type RunCommand struct {
 
 func (r RunCommand) Render() string {
 	if r.RunForm == "" {
-		r.RunForm = ShellForm
+		r.RunForm = RunCommandDefaultRunForm
 	}
 
 	if r.RunForm == ExecForm {
