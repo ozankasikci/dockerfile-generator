@@ -9,16 +9,42 @@ type DockerfileDataYaml struct {
 	Stages map[string]Stage `yaml:stages`
 }
 
-func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} {
+type YAMLMapStringInterface map[string]interface{}
+type YAMLMapInterfaceInterface map[interface{}]interface{}
+
+func ensureMapInterfaceInterface(value interface{}) (map[interface{}]interface{}) {
 	v, ok := value.(map[interface{}]interface{})
 	if !ok {
-		panic("Invalid value for 'from'")
+		panic("no")
+		//return nil, errors.New(fmt.Sprintf("Expected map[interface]interface found, %T", value))
+	}
+
+	return v
+}
+
+func ensureMapStringInterface(value interface{}) (map[string]interface{}) {
+	v, ok := value.(map[string]interface{})
+	if !ok {
+		panic("no")
+		//return nil, errors.New(fmt.Sprintf("Expected map[string]interface found, %T", value))
 	}
 
 	return v
 }
 
 func convertMapInterfaceToString(mapInterface map[interface{}]interface{}) map[string]string {
+	mapString := make(map[string]string)
+
+	for key, value := range mapInterface {
+		strKey := fmt.Sprintf("%v", key)
+		strValue := fmt.Sprintf("%v", value)
+		mapString[strKey] = strValue
+	}
+
+	return mapString
+}
+
+func convertMapStringInterfaceToString(mapInterface map[string]interface{}) map[string]string {
 	mapString := make(map[string]string)
 
 	for key, value := range mapInterface {
@@ -45,8 +71,8 @@ func convertSliceInterfaceToString(s interface{}) ([]string, error) {
 	return res, nil
 }
 
-func cleanUpFrom(value map[interface{}]interface{}) From {
-	v := convertMapInterfaceToString(value)
+func cleanUpFrom(value YAMLMapStringInterface) From {
+	v := convertMapStringInterfaceToString(value)
 	var from From
 
 	if v["image"] != "" {
@@ -60,7 +86,7 @@ func cleanUpFrom(value map[interface{}]interface{}) From {
 	return from
 }
 
-func cleanUpArg(value map[interface{}]interface{}) Arg {
+func cleanUpArg(value YAMLMapInterfaceInterface) Arg {
 	v := convertMapInterfaceToString(value)
 	var arg Arg
 
@@ -83,8 +109,8 @@ func cleanUpArg(value map[interface{}]interface{}) Arg {
 	return arg
 }
 
-func cleanUpLabel(value map[interface{}]interface{}) Label {
-	v := convertMapInterfaceToString(value)
+func cleanUpLabel(value YAMLMapStringInterface) Label {
+	v := convertMapStringInterfaceToString(value)
 	var l Label
 
 	if v["name"] != "" {
@@ -98,8 +124,8 @@ func cleanUpLabel(value map[interface{}]interface{}) Label {
 	return l
 }
 
-func cleanUpVolume(value map[interface{}]interface{}) Volume {
-	v := convertMapInterfaceToString(value)
+func cleanUpVolume(value YAMLMapStringInterface) Volume {
+	v := convertMapStringInterfaceToString(value)
 	var vlm Volume
 
 	if v["source"] != "" {
@@ -113,7 +139,7 @@ func cleanUpVolume(value map[interface{}]interface{}) Volume {
 	return vlm
 }
 
-func cleanUpRunCommand(value map[interface{}]interface{}) RunCommand {
+func cleanUpRunCommand(value YAMLMapInterfaceInterface) RunCommand {
 	var r RunCommand
 	v := convertMapInterfaceToString(value)
 
@@ -133,8 +159,8 @@ func cleanUpRunCommand(value map[interface{}]interface{}) RunCommand {
 	return r
 }
 
-func cleanUpEnvVariable(value map[interface{}]interface{}) EnvVariable {
-	v := convertMapInterfaceToString(value)
+func cleanUpEnvVariable(value YAMLMapStringInterface) EnvVariable {
+	v := convertMapStringInterfaceToString(value)
 	var e EnvVariable
 
 	if v["name"] != "" {
@@ -148,7 +174,7 @@ func cleanUpEnvVariable(value map[interface{}]interface{}) EnvVariable {
 	return e
 }
 
-func cleanUpCopyCommand(value map[interface{}]interface{}) CopyCommand {
+func cleanUpCopyCommand(value YAMLMapInterfaceInterface) CopyCommand {
 	var c CopyCommand
 	v := convertMapInterfaceToString(value)
 
@@ -173,7 +199,7 @@ func cleanUpCopyCommand(value map[interface{}]interface{}) CopyCommand {
 	return c
 }
 
-func cleanUpCmd(value map[interface{}]interface{}) Cmd {
+func cleanUpCmd(value YAMLMapInterfaceInterface) Cmd {
 	var c Cmd
 	v := convertMapInterfaceToString(value)
 
@@ -193,7 +219,7 @@ func cleanUpCmd(value map[interface{}]interface{}) Cmd {
 	return c
 }
 
-func cleanUpEntrypoint(value map[interface{}]interface{}) Entrypoint {
+func cleanUpEntrypoint(value YAMLMapInterfaceInterface) Entrypoint {
 	var e Entrypoint
 	v := convertMapInterfaceToString(value)
 
@@ -213,7 +239,7 @@ func cleanUpEntrypoint(value map[interface{}]interface{}) Entrypoint {
 	return e
 }
 
-func cleanUpOnbuild(value map[interface{}]interface{}) Onbuild {
+func cleanUpOnbuild(value YAMLMapInterfaceInterface) Onbuild {
 	var o Onbuild
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -225,7 +251,7 @@ func cleanUpOnbuild(value map[interface{}]interface{}) Onbuild {
 	return o
 }
 
-func cleanUpHealthCheck(value map[interface{}]interface{}) HealthCheck {
+func cleanUpHealthCheck(value YAMLMapInterfaceInterface) HealthCheck {
 	var h HealthCheck
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -237,7 +263,7 @@ func cleanUpHealthCheck(value map[interface{}]interface{}) HealthCheck {
 	return h
 }
 
-func cleanUpShell(value map[interface{}]interface{}) Shell {
+func cleanUpShell(value YAMLMapInterfaceInterface) Shell {
 	var s Shell
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -249,8 +275,8 @@ func cleanUpShell(value map[interface{}]interface{}) Shell {
 	return s
 }
 
-func cleanUpWorkdir(value map[interface{}]interface{}) Workdir {
-	v := convertMapInterfaceToString(value)
+func cleanUpWorkdir(value YAMLMapStringInterface) Workdir {
+	v := convertMapStringInterfaceToString(value)
 	var w Workdir
 
 	if v["dir"] != "" {
@@ -270,38 +296,51 @@ func cleanUpInterfaceArray(in []interface{}) []Instruction {
 
 func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
 	for key, value := range in {
-		v := ensureMapInterfaceInterface(value)
 		switch key {
 		case "from":
+			v := ensureMapStringInterface(value)
 			return cleanUpFrom(v)
 		case "arg":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpArg(v)
 		case "label":
+			v := ensureMapStringInterface(value)
 			return cleanUpLabel(v)
 		case "volume":
+			v := ensureMapStringInterface(value)
 			return cleanUpVolume(v)
 		case "run":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpRunCommand(v)
 		case "envVariable":
+			v := ensureMapStringInterface(value)
 			return cleanUpEnvVariable(v)
 		case "copy":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpCopyCommand(v)
 		case "cmd":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpCmd(v)
 		case "entrypoint":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpEntrypoint(v)
 		case "onbuild":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpOnbuild(v)
 		case "healthCheck":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpHealthCheck(v)
 		case "shell":
+			v := ensureMapInterfaceInterface(value)
 			return cleanUpShell(v)
 		case "workdir":
+			v := ensureMapStringInterface(value)
 			return cleanUpWorkdir(v)
 		}
 
 	}
-    panic("Unknown instruction in yaml!")
+    //panic("Unknown instruction in yaml!")
+    return Workdir{Dir: "test"}
 }
 
 func cleanUpMapValue(v interface{}) Instruction {

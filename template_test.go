@@ -15,6 +15,9 @@ func TestCodeRendering(t *testing.T) {
 				From{
 					Image: "golang:1.7.3", As: "builder",
 				},
+				Arg{
+					Name: "arg-name", Test: true, EnvVariable: true,
+				},
 				Workdir{
 					Dir: "/go/src/github.com/alexellis/href-counter/",
 				},
@@ -55,6 +58,9 @@ func TestCodeRendering(t *testing.T) {
 	assert.NoError(t, err)
 
     expectedOutput := `FROM golang:1.7.3 as builder
+ARG arg-name
+RUN test -n "${arg-name}"
+ENV arg-name="${arg-name}"
 WORKDIR /go/src/github.com/alexellis/href-counter/
 RUN go get -d -v golang.org/x/net/html
 COPY app.go .
