@@ -7,7 +7,7 @@ Automated Dockerfile generation library.
 
 https://godoc.org/github.com/ozankasikci/dockerfile-generator
 
-### Example
+### Library Usage Example
 
 ```go
 package main
@@ -81,3 +81,31 @@ WORKDIR /root/
 COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
 CMD ["./app"]
 ```
+
+### YAML File Example
+```yaml
+stages:
+  final:
+    - from:
+        image: kstaken/apache2
+    - run:
+        runForm: shell
+        params:
+          - apt-get update &&
+          - apt-get install -y
+          - php5
+          - apt-get clean &&
+          - rm -rf /var/lib/apt/lists/*
+    - cmd:
+        params:
+          - /usr/sbin/apache2
+          - -D
+          - FOREGROUND
+```
+
+### Output
+```dockerfile
+FROM kstaken/apache2
+RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+``

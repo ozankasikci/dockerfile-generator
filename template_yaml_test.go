@@ -10,7 +10,7 @@ func TestGetStagesOrderFromYamlNode(t *testing.T) {
 	d := &DockerfileDataYaml{}
 	node := &yaml.Node{}
 
-	err := unmarshallYamlFile("./example-input-files/input.yaml", node, d)
+	err := unmarshallYamlFile("./example-input-files/test-input.yaml", node, d)
 	assert.NoError(t, err)
 
 	stages, err := getStagesOrderFromYamlNode(node)

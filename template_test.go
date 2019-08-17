@@ -78,7 +78,7 @@ CMD ["./app"]
 }
 
 func TestYamlRendering(t *testing.T) {
-	tmpl, err := NewDockerFileTemplateFromYamlFile("./example-input-files/input.yaml")
+	tmpl, err := NewDockerFileTemplateFromYamlFile("./example-input-files/test-input.yaml")
 	assert.NoError(t, err)
 
 	output := &bytes.Buffer{}
