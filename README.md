@@ -1,7 +1,11 @@
-## Dockerfile Generator
+## dfg - Dockerfile Generator
 [![Build Status](https://travis-ci.org/ozankasikci/dockerfile-generator.svg?branch=master)](https://travis-ci.org/ozankasikci/dockerfile-generator)
 
 Automated Dockerfile generation library.
+
+### Installation
+
+`go get -u github.com/ozankasikci/dockerfile-generator`
 
 ### Docs
 
