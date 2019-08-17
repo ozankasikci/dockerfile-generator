@@ -4,10 +4,10 @@ and spits out a generated Dockerfile.
  */
 package dockerfile_generator
 import (
+	"errors"
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"io"
-	"io/ioutil"
-	"log"
 	"text/template"
 )
 
@@ -19,25 +19,27 @@ func NewDockerFileTemplate(data *DockerfileData) *DockerFileTemplate {
     return &DockerFileTemplate{ Data: data }
 }
 
-func NewDockerFileTemplateFromYamlFile(filename string) *DockerFileTemplate {
+func NewDockerFileTemplateFromYamlFile(filename string) (*DockerFileTemplate, error) {
 	d := &DockerfileDataYaml{}
+	node := &yaml.Node{}
 
-	yamlFile, err := ioutil.ReadFile(filename)
+	err := unmarshallYamlFile(filename, node, d)
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		return nil, errors.New(fmt.Sprintf("Unmarshal: %v", err))
 	}
-	err = yaml.Unmarshal(yamlFile, d)
+
+	stagesInOrder, err := getStagesOrderFromYamlNode(node)
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
+		return nil, errors.New(fmt.Sprintf("Unmarshal: %v", err))
 	}
 
 	var stages []Stage
-	for _, stage := range d.Stages {
-		stages = append(stages, stage)
+	for _, stageName := range stagesInOrder {
+		stages = append(stages, d.Stages[stageName])
 	}
 
 	data := &DockerfileData{Stages: stages}
-	return &DockerFileTemplate{ Data: data }
+	return &DockerFileTemplate{Data: data}, nil
 }
 
 // Render iterates through the given dockerfile instruction instances and executes the template.

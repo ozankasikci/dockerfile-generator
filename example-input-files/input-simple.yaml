@@ -1,0 +1,7 @@
+stages:
+  builder:
+    - from:
+        image: alpine:latest
+  final:
+    - workdir:
+        dir: test dir

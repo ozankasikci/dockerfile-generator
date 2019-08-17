@@ -78,9 +78,11 @@ CMD ["./app"]
 }
 
 func TestYamlRendering(t *testing.T) {
-	tmpl := NewDockerFileTemplateFromYamlFile("./example-input-files/input.yaml")
+	tmpl, err := NewDockerFileTemplateFromYamlFile("./example-input-files/input.yaml")
+	assert.NoError(t, err)
+
 	output := &bytes.Buffer{}
-	err := tmpl.Render(output)
+	err = tmpl.Render(output)
 	assert.NoError(t, err)
 
 	expectedOutput := `FROM alpine:latest as builder

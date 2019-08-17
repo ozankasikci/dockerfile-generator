@@ -3,11 +3,22 @@ package dockerfile_generator
 import (
 	"errors"
 	"fmt"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
 )
 
 type DockerfileDataYaml struct {
 	Stages map[string]Stage `yaml:stages`
 }
+
+
+//func (s *DockerfileDataYaml) UnmarshalYAML(unmarshal func(interface{}) error) error {
+//	var person Node
+//	var data []Stage
+//	_ := yaml.Unmarshal(data, &person)
+//	fmt.Printf("%v\n", person)
+//	return nil
+//}
 
 type YAMLMapStringInterface map[string]interface{}
 type YAMLMapInterfaceInterface map[interface{}]interface{}
@@ -339,8 +350,8 @@ func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
 		}
 
 	}
-    //panic("Unknown instruction in yaml!")
-    return Workdir{Dir: "test"}
+
+    panic("Unknown instruction in yaml!")
 }
 
 func cleanUpMapValue(v interface{}) Instruction {
@@ -350,5 +361,57 @@ func cleanUpMapValue(v interface{}) Instruction {
 	default:
         panic("Invalid instruction type in yaml!")
 	}
+}
+
+func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYaml) error {
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return errors.New(fmt.Sprintf("yamlFile.Get err   #%v ", err))
+	}
+	err = yaml.Unmarshal(yamlFile, node)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unmarshal: %v", err))
+	}
+
+	err = node.Decode(data)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unmarshal: %v", err))
+	}
+
+	return nil
+}
+
+func getStagesOrderFromYamlNode(node *yaml.Node) ([]string, error) {
+	var stages []string
+	parentMapNode := node.Content[0]
+
+	if parentMapNode.Kind != yaml.MappingNode {
+		return nil, errors.New("Yaml should contain a map that contains 'stages' key!")
+	}
+
+	stagesKeyNode := parentMapNode.Content[0]
+	if stagesKeyNode.Kind != yaml.ScalarNode {
+		return nil, errors.New("Yaml should contain a 'stages' key!")
+	}
+
+	stagesMapNode := parentMapNode.Content[1]
+	if stagesMapNode.Kind != yaml.MappingNode {
+		return nil, errors.New("Yaml should contain a 'stages' map that has stage names as keys!")
+	}
+
+	for i, stage := range stagesMapNode.Content {
+		if i % 2 == 0 {
+			if stage.Kind != yaml.ScalarNode {
+				return nil, errors.New("Yaml should contain stage keys in 'staging' map")
+			}
+			stages = append(stages, stage.Value)
+		} else {
+			if stage.Kind != yaml.SequenceNode {
+				return nil, errors.New("Yaml should contain stage sequences in 'staging' map")
+			}
+		}
+	}
+
+	return stages, nil
 }
 
