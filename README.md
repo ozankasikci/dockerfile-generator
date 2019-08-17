@@ -106,7 +106,7 @@ stages:
           - -D
           - FOREGROUND
 ```
-```
+```go
 data, err := NewDockerFileDataFromYamlFile("./example-input-files/test-input.yaml")
 tmpl := NewDockerfileTemplate(data)
 err = tmpl.Render(output)
