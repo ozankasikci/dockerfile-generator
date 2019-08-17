@@ -108,4 +108,4 @@ stages:
 FROM kstaken/apache2
 RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-``
+```
