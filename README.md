@@ -11,6 +11,45 @@ Automated Dockerfile generation library.
 
 https://godoc.org/github.com/ozankasikci/dockerfile-generator
 
+### YAML File Example
+```yaml
+stages:
+  final:
+    - from:
+        image: kstaken/apache2
+    - run:
+        runForm: shell
+        params:
+          - apt-get update &&
+          - apt-get install -y
+          - php5
+          - apt-get clean &&
+          - rm -rf /var/lib/apt/lists/*
+    - cmd:
+        params:
+          - /usr/sbin/apache2
+          - -D
+          - FOREGROUND
+```
+Use dfg as binary:
+```shell
+dfg generate -i ./example-input-files/apache-php.yaml --stdout
+```
+Or as a library
+```go
+data, err := dfg.NewDockerFileDataFromYamlFile("./example-input-files/apache-php.yaml")
+tmpl := dfg.NewDockerfileTemplate(data)
+err = tmpl.Render(output)
+```
+
+### Output
+
+```dockerfile
+FROM kstaken/apache2
+RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+```
+
 ### Library Usage Example
 
 ```go
@@ -84,38 +123,4 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
 CMD ["./app"]
-```
-
-### YAML File Example
-```yaml
-stages:
-  final:
-    - from:
-        image: kstaken/apache2
-    - run:
-        runForm: shell
-        params:
-          - apt-get update &&
-          - apt-get install -y
-          - php5
-          - apt-get clean &&
-          - rm -rf /var/lib/apt/lists/*
-    - cmd:
-        params:
-          - /usr/sbin/apache2
-          - -D
-          - FOREGROUND
-```
-```go
-data, err := dfg.NewDockerFileDataFromYamlFile("./example-input-files/apache-php.yaml")
-tmpl := dfg.NewDockerfileTemplate(data)
-err = tmpl.Render(output)
-```
-
-### Output
-
-```dockerfile
-FROM kstaken/apache2
-RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*
-CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 ```
