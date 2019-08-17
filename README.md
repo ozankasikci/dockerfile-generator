@@ -107,8 +107,8 @@ stages:
           - FOREGROUND
 ```
 ```go
-data, err := NewDockerFileDataFromYamlFile("./example-input-files/apache-php.yaml")
-tmpl := NewDockerfileTemplate(data)
+data, err := dfg.NewDockerFileDataFromYamlFile("./example-input-files/apache-php.yaml")
+tmpl := dfg.NewDockerfileTemplate(data)
 err = tmpl.Render(output)
 ```
 
