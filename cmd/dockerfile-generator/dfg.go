@@ -46,7 +46,7 @@ func main() {
 			},
 		},
 	}
-	tmpl := dfg.NewDockerFileTemplate(data)
+	tmpl := dfg.NewDockerfileTemplate(data)
 	err := tmpl.Render(os.Stdout)
 
 	if err != nil {

@@ -60,7 +60,7 @@ func main() {
 			},
 		},
 	}
-	tmpl := dfg.NewDockerFileTemplate(data)
+	tmpl := dfg.NewDockerfileTemplate(data)
 	
 	// write to a file
 	file, err := os.Create("Dockerfile")
@@ -106,8 +106,14 @@ stages:
           - -D
           - FOREGROUND
 ```
+```
+data, err := NewDockerFileDataFromYamlFile("./example-input-files/test-input.yaml")
+tmpl := NewDockerfileTemplate(data)
+err = tmpl.Render(output)
+```
 
 ### Output
+
 ```dockerfile
 FROM kstaken/apache2
 RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*

@@ -11,15 +11,15 @@ import (
 	"text/template"
 )
 
-type DockerFileTemplate struct {
+type DockerfileTemplate struct {
 	Data *DockerfileData
 }
 
-func NewDockerFileTemplate(data *DockerfileData) *DockerFileTemplate {
-    return &DockerFileTemplate{ Data: data }
+func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
+    return &DockerfileTemplate{ Data: data }
 }
 
-func NewDockerFileTemplateFromYamlFile(filename string) (*DockerFileTemplate, error) {
+func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
 	d := &DockerfileDataYaml{}
 	node := &yaml.Node{}
 
@@ -38,13 +38,12 @@ func NewDockerFileTemplateFromYamlFile(filename string) (*DockerFileTemplate, er
 		stages = append(stages, d.Stages[stageName])
 	}
 
-	data := &DockerfileData{Stages: stages}
-	return &DockerFileTemplate{Data: data}, nil
+	return &DockerfileData{Stages: stages}, nil
 }
 
 // Render iterates through the given dockerfile instruction instances and executes the template.
 // The output would be a generated Dockerfile.
-func (d *DockerFileTemplate) Render(writer io.Writer) error {
+func (d *DockerfileTemplate) Render(writer io.Writer) error {
 	templateString := "{{- range .Stages -}}" +
 					"{{- range $i, $instruction := . }}" +
 					"{{- if gt $i 0 }}\n{{ end }}" +
