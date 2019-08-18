@@ -112,3 +112,13 @@ WORKDIR test dir
 
 	assert.Equal(t, expectedOutput, output.String())
 }
+
+func TestYamlRenderingFail(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlFile("./example-input-files/invalid-input.yaml")
+	tmpl := NewDockerfileTemplate(data)
+	assert.Error(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.Error(t, err)
+}
