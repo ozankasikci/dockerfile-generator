@@ -40,7 +40,7 @@ func NewCmdGenerate() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&cfg.input, "input", "i", "", "Input path")
 	cmd.PersistentFlags().StringVarP(&cfg.output, "out", "o", "", "Output file path")
 	cmd.PersistentFlags().BoolVar(&cfg.stdout,"stdout", false, "When true, output will be redirected to stdout")
-	cmd.PersistentFlags().StringVarP(&cfg.inputType, "type", "t", "", "Input type (yaml)")
+	cmd.PersistentFlags().StringVarP(&cfg.inputType, "type", "t", "", "Input type (yaml-file)")
 
 	return cmd
 }

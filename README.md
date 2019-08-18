@@ -1,17 +1,67 @@
 ## dfg - Dockerfile Generator
+
+`dfg` is both a go library and an executable that produces valid Dockerfiles using various input channels.
+
 [![Build Status](https://travis-ci.org/ozankasikci/dockerfile-generator.svg?branch=master)](https://travis-ci.org/ozankasikci/dockerfile-generator)
+[![GoDoc](https://godoc.org/github.com/ozankasikci/dockerfile-generator?status.svg)](https://godoc.org/github.com/ozankasikci/dockerfile-generator)
 
-Automated Dockerfile generation library.
+## Table of Contents
 
-### Installation
+- [Overview](#overview)
+- [Installation](#installation)
+  * [Installing as an Executable](#installing-as-an-executable)
+  * [Installing as a Library](#installing-as-a-library)
+- [Getting Started](#getting-started)
+  * [Using dfg as an Executable](#using-dfg-as-an-executable)
+  * [Using dfg as a Library](#using-dfg-as-a-library)
+- [Examples](#examples)
+  * [YAML File Example](#yaml-file-example)
+  * [Library Usage Example](#library-usagee-xample)
+
+## Overview
+
+`dfg` is a Dockerfile generator that accepts input data from various sources, produces and redirects the generated Dockerfile to an output target such as a file or stdout.
+
+## Installation
+#### Installing as an Executable
+
+* MacOS
+
+```shell
+curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v0.0.1/dfg_darwin_amd64
+chmod +x dfg && sudo mv dfg /usr/local/bin
+```
+
+* Linux
+
+```shell
+curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v0.0.1/dfg_linux_amd64
+chmod +x dfg && sudo mv dfg /usr/local/bin
+```
+
+#### Installing as a Library
 
 `go get -u github.com/ozankasikci/dockerfile-generator`
 
-### Docs
+## Getting Started
 
-https://godoc.org/github.com/ozankasikci/dockerfile-generator
+#### Using dfg as an Executable
 
-### YAML File Example
+Available commands:
+
+`dfg generate --input path/to/yaml --out Dockerfile` generates a file from the input yaml file
+
+`dfg generate --help` lists available flags
+
+#### Using dfg as a Library
+
+When using `dfg` as a go library, you need to pass a `[]dfg.Stage` slice as data.
+This approach enables and encourages multi staged Dockerfiles.
+Dockerfile instructions will be generated in the same order as in the `[]dfg.Instruction` slice.
+
+## Examples
+
+#### YAML File Example
 ```yaml
 stages:
   final:
@@ -42,7 +92,7 @@ tmpl := dfg.NewDockerfileTemplate(data)
 err = tmpl.Render(output)
 ```
 
-### Output
+#### YAML File Example Output
 
 ```dockerfile
 FROM kstaken/apache2
@@ -50,7 +100,7 @@ RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/a
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 ```
 
-### Library Usage Example
+#### Library Usage Example
 
 ```go
 package main
@@ -110,7 +160,7 @@ func main() {
 }
 ``` 
 
-### Output
+#### Library Usage Example Output
 ```Dockerfile
 FROM golang:1.7.3 as builder
 WORKDIR /go/src/github.com/alexellis/href-counter/
