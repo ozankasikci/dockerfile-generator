@@ -50,7 +50,7 @@ chmod +x dfg && sudo mv dfg /usr/local/bin
 
 ## Getting Started
 
-#### Using dfg as an Executable
+### Using dfg as an Executable
 
 Available commands:
 
@@ -58,7 +58,7 @@ Available commands:
 
 `dfg generate --help` lists available flags
 
-#### Using dfg as a Library
+### Using dfg as a Library
 
 When using `dfg` as a go library, you need to pass a `[]dfg.Stage` slice as data.
 This approach enables and encourages multi staged Dockerfiles.
