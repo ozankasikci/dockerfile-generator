@@ -87,6 +87,7 @@ type From struct {
 	As    string `yaml:"as"`
 }
 
+// Render returns a string in the form of FROM <image> [AS <name>]
 func (f From) Render() string {
 	res := fmt.Sprintf("FROM %s", f.Image)
 
@@ -103,6 +104,7 @@ type Label struct {
 	Value string `yaml:"value"`
 }
 
+// Render returns a string in the form of LABEL <key>=<value>
 func (l Label) Render() string {
 	return fmt.Sprintf("LABEL %s=%s", l.Name, l.Value)
 }
@@ -113,6 +115,7 @@ type Volume struct {
 	Destination string `yaml:"destination"`
 }
 
+// Render returns a string in the form of VOLUME <source> <destination>
 func (v Volume) Render() string {
 	return fmt.Sprintf("VOLUME %s %s", v.Source, v.Destination)
 }
@@ -123,6 +126,7 @@ type RunCommand struct {
 	RunForm `yaml:"runForm"`
 }
 
+// Render returns a string in the form of RUN <command>
 func (r RunCommand) Render() string {
 	if r.RunForm == "" {
 		r.RunForm = RunCommandDefaultRunForm
@@ -141,6 +145,7 @@ type EnvVariable struct {
 	Value string `yaml:"value"`
 }
 
+// Render returns a string in the form of ENV <key> <value>
 func (e EnvVariable) Render() string {
 	return fmt.Sprintf("ENV %s=%s", e.Name, e.Value)
 }
@@ -153,6 +158,7 @@ type CopyCommand struct {
 	From        string   `yaml:"from"`
 }
 
+// Render returns a string in the form of COPY [--chown=<user>:<group>] <src>... <dest>
 func (c CopyCommand) Render() string {
 	res := "COPY"
 
@@ -176,6 +182,7 @@ type Cmd struct {
 	RunForm `yaml:"runForm"`
 }
 
+// Render returns a string in the form of CMD ["executable","param1","param2"]
 func (c Cmd) Render() string {
 	if c.RunForm == "" {
 		c.RunForm = ExecForm
@@ -194,6 +201,7 @@ type Entrypoint struct {
 	RunForm `yaml:"runForm"`
 }
 
+// Render returns a string in the form of ENTRYPOINT ["executable", "param1", "param2"]
 func (e Entrypoint) Render() string {
 	if e.RunForm == "" {
 		e.RunForm = ExecForm
@@ -211,6 +219,7 @@ type Onbuild struct {
 	Params `yaml:"params"`
 }
 
+// Render returns a string in the form of ONBUILD [INSTRUCTION]
 func (o Onbuild) Render() string {
 	return fmt.Sprintf("ONBUILD %s", o.ShellForm())
 }
@@ -220,6 +229,7 @@ type HealthCheck struct {
 	Params `yaml:"params"`
 }
 
+// Render returns a string in the form of HEALTHCHECK [OPTIONS] CMD command
 func (h HealthCheck) Render() string {
 	return fmt.Sprintf("HEALTHCHECK %s", h.ShellForm())
 }
@@ -229,6 +239,7 @@ type Shell struct {
 	Params `yaml:"params"`
 }
 
+// Render returns a string in the form of SHELL ["executable", "parameters"]
 func (s Shell) Render() string {
 	return fmt.Sprintf("SHELL %s", s.ExecForm())
 }
@@ -238,6 +249,7 @@ type Workdir struct {
 	Dir string `yaml:"dir"`
 }
 
+// Render returns a string in the form of WORKDIR /path/to/workdir
 func (w Workdir) Render() string {
 	return fmt.Sprintf("WORKDIR %s", w.Dir)
 }
