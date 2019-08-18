@@ -16,7 +16,7 @@
   * [Using dfg as a Library](#using-dfg-as-a-library)
 - [Examples](#examples)
   * [YAML File Example](#yaml-file-example)
-  * [Library Usage Example](#library-usagee-xample)
+  * [Library Usage Example](#library-usage-example)
 
 ## Overview
 
@@ -59,6 +59,11 @@ When using `dfg` as a go library, you need to pass a `[]dfg.Stage` slice as data
 This approach enables and encourages multi staged Dockerfiles.
 Dockerfile instructions will be generated in the same order as in the `[]dfg.Instruction` slice.
 
+Some `Instruction`s accept a `runForm` field which specifies if the `Instruction` should be run in the `shell form` or the `exec form`.
+If the `runForm` is not specified, it will be chosen based on [Dockerfile best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/). 
+
+For detailed usage example please see [Library Usage Example](#library-usage-example)
+
 ## Examples
 
 #### YAML File Example
@@ -92,7 +97,7 @@ tmpl := dfg.NewDockerfileTemplate(data)
 err = tmpl.Render(output)
 ```
 
-#### YAML File Example Output
+#### Output
 
 ```dockerfile
 FROM kstaken/apache2
@@ -160,7 +165,7 @@ func main() {
 }
 ``` 
 
-#### Library Usage Example Output
+#### Output
 ```Dockerfile
 FROM golang:1.7.3 as builder
 WORKDIR /go/src/github.com/alexellis/href-counter/
