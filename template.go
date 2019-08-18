@@ -1,8 +1,9 @@
 /*
 Package dockerfile-generator is a Dockerfile generation library. It receives any kind of Dockerfile instructions
 and spits out a generated Dockerfile.
- */
+*/
 package dockerfile_generator
+
 import (
 	"errors"
 	"fmt"
@@ -16,7 +17,7 @@ type DockerfileTemplate struct {
 }
 
 func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
-    return &DockerfileTemplate{ Data: data }
+	return &DockerfileTemplate{Data: data}
 }
 
 func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
@@ -45,11 +46,11 @@ func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
 // The output would be a generated Dockerfile.
 func (d *DockerfileTemplate) Render(writer io.Writer) error {
 	templateString := "{{- range .Stages -}}" +
-					"{{- range $i, $instruction := . }}" +
-					"{{- if gt $i 0 }}\n{{ end }}" +
-					"{{ $instruction.Render }}\n" +
-					"{{- end }}\n\n" +
-					"{{ end }}"
+		"{{- range $i, $instruction := . }}" +
+		"{{- if gt $i 0 }}\n{{ end }}" +
+		"{{ $instruction.Render }}\n" +
+		"{{- end }}\n\n" +
+		"{{ end }}"
 
 	tmpl, err := template.New("dockerfile.template").Parse(templateString)
 	if err != nil {
@@ -58,7 +59,7 @@ func (d *DockerfileTemplate) Render(writer io.Writer) error {
 
 	err = tmpl.Execute(writer, d.Data)
 	if err != nil {
-        return err
+		return err
 	}
 
 	return nil

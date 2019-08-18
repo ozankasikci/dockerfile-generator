@@ -6,12 +6,13 @@ import (
 )
 
 type RunForm string
+
 const (
-	ExecForm RunForm = "ExecForm"
-	ShellForm RunForm = "ShellForm"
-	RunCommandDefaultRunForm = ShellForm
-	CmdDefaultRunForm = ExecForm
-	EntrypointDefaultRunForm = ExecForm
+	ExecForm                 RunForm = "ExecForm"
+	ShellForm                RunForm = "ShellForm"
+	RunCommandDefaultRunForm         = ShellForm
+	CmdDefaultRunForm                = ExecForm
+	EntrypointDefaultRunForm         = ExecForm
 )
 
 type Instruction interface {
@@ -39,16 +40,16 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 type Arg struct {
-	Name  string `yaml:name`
-	Value string `yaml:value`
-	Test  bool `yaml:test,omitempty`
-	EnvVariable bool `yaml:envVariable,omitempty`
+	Name        string `yaml:name`
+	Value       string `yaml:value`
+	Test        bool   `yaml:test,omitempty`
+	EnvVariable bool   `yaml:envVariable,omitempty`
 }
 
 func (a Arg) Render() string {
 	res := fmt.Sprintf("ARG %s", a.Name)
 
-	if	a.Value != "" {
+	if a.Value != "" {
 		res = fmt.Sprintf("%s=%s", res, a.Value)
 	}
 
@@ -56,7 +57,7 @@ func (a Arg) Render() string {
 		res = fmt.Sprintf("%s\nRUN test -n \"${%s}\"", res, a.Name)
 	}
 
-	if	a.EnvVariable {
+	if a.EnvVariable {
 		res = fmt.Sprintf("%s\nENV %s=\"${%s}\"", res, a.Name, a.Name)
 	}
 
@@ -97,7 +98,7 @@ func (v Volume) Render() string {
 }
 
 type RunCommand struct {
-	Params `yaml:params`
+	Params  `yaml:params`
 	RunForm `yaml:runForm`
 }
 
@@ -123,10 +124,10 @@ func (e EnvVariable) Render() string {
 }
 
 type CopyCommand struct {
-	Sources []string `yaml:sources`
-	Destination string `yaml:destination`
-	Chown string `yaml:chown`
-	From string `yaml:from`
+	Sources     []string `yaml:sources`
+	Destination string   `yaml:destination`
+	Chown       string   `yaml:chown`
+	From        string   `yaml:from`
 }
 
 func (c CopyCommand) Render() string {
@@ -147,7 +148,7 @@ func (c CopyCommand) Render() string {
 }
 
 type Cmd struct {
-	Params `yaml:params`
+	Params  `yaml:params`
 	RunForm `yaml:runForm`
 }
 
@@ -164,7 +165,7 @@ func (c Cmd) Render() string {
 }
 
 type Entrypoint struct {
-	Params `yaml:params`
+	Params  `yaml:params`
 	RunForm `yaml:runForm`
 }
 

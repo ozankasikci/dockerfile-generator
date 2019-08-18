@@ -11,7 +11,6 @@ type DockerfileDataYaml struct {
 	Stages map[string]Stage `yaml:stages`
 }
 
-
 //func (s *DockerfileDataYaml) UnmarshalYAML(unmarshal func(interface{}) error) error {
 //	var person Node
 //	var data []Stage
@@ -23,7 +22,7 @@ type DockerfileDataYaml struct {
 type YAMLMapStringInterface map[string]interface{}
 type YAMLMapInterfaceInterface map[interface{}]interface{}
 
-func ensureMapInterfaceInterface(value interface{}) (map[interface{}]interface{}) {
+func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} {
 	v, ok := value.(map[interface{}]interface{})
 	if !ok {
 		panic("no")
@@ -33,7 +32,7 @@ func ensureMapInterfaceInterface(value interface{}) (map[interface{}]interface{}
 	return v
 }
 
-func ensureMapStringInterface(value interface{}) (map[string]interface{}) {
+func ensureMapStringInterface(value interface{}) map[string]interface{} {
 	v, ok := value.(map[string]interface{})
 	if !ok {
 		panic("no")
@@ -73,7 +72,7 @@ func convertSliceInterfaceToString(s interface{}) ([]string, error) {
 		return nil, errors.New("Invalid type, can't cast interface{} to []interface{}")
 	}
 
-   	res := make([]string, len(slice))
+	res := make([]string, len(slice))
 
 	for i, value := range slice {
 		res[i] = fmt.Sprintf("%v", value)
@@ -351,15 +350,15 @@ func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
 
 	}
 
-    panic("Unknown instruction in yaml!")
+	panic("Unknown instruction in yaml!")
 }
 
 func cleanUpMapValue(v interface{}) Instruction {
 	switch v := v.(type) {
-	case map[interface {}]interface {}:
+	case map[interface{}]interface{}:
 		return cleanUpInterfaceMap(v)
 	default:
-        panic("Invalid instruction type in yaml!")
+		panic("Invalid instruction type in yaml!")
 	}
 }
 
@@ -400,7 +399,7 @@ func getStagesOrderFromYamlNode(node *yaml.Node) ([]string, error) {
 	}
 
 	for i, stage := range stagesMapNode.Content {
-		if i % 2 == 0 {
+		if i%2 == 0 {
 			if stage.Kind != yaml.ScalarNode {
 				return nil, errors.New("Yaml should contain stage keys in 'staging' map")
 			}
@@ -414,4 +413,3 @@ func getStagesOrderFromYamlNode(node *yaml.Node) ([]string, error) {
 
 	return stages, nil
 }
-

@@ -2,10 +2,9 @@ package dockerfile_generator
 
 import (
 	"bytes"
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
-
 
 func TestCodeRendering(t *testing.T) {
 	data := &DockerfileData{
@@ -57,7 +56,7 @@ func TestCodeRendering(t *testing.T) {
 	err := tmpl.Render(output)
 	assert.NoError(t, err)
 
-    expectedOutput := `FROM golang:1.7.3 as builder
+	expectedOutput := `FROM golang:1.7.3 as builder
 ARG arg-name
 RUN test -n "${arg-name}"
 ENV arg-name="${arg-name}"
