@@ -19,6 +19,7 @@
 - [Examples](#examples)
   * [YAML File Example](#yaml-file-example)
   * [Library Usage Example](#library-usage-example)
+- [TODO](#todo)
 
 ## Overview
 
@@ -183,3 +184,9 @@ WORKDIR /root/
 COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
 CMD ["./app"]
 ```
+
+## TODO
+- [ ] Implement json file input channel
+- [ ] Implement stdin input channel
+- [ ] Implement toml file input channel
+
