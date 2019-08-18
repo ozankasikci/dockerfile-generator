@@ -8,7 +8,7 @@ import (
 )
 
 type DockerfileDataYaml struct {
-	Stages map[string]Stage `yaml:stages`
+	Stages map[string]Stage `yaml:"stages"`
 }
 
 //func (s *DockerfileDataYaml) UnmarshalYAML(unmarshal func(interface{}) error) error {

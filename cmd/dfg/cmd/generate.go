@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	dfg "github.com/ozankasikci/dockerfile-generator"
+	"github.com/spf13/cobra"
 	"io"
 	"os"
 )
@@ -12,17 +12,17 @@ const (
 )
 
 type cmdGenerateConfig struct {
-	input string
-	output string
+	input     string
+	output    string
 	inputType string
-	stdout bool
+	stdout    bool
 }
 
 func NewCmdGenerate() *cobra.Command {
 	cfg := &cmdGenerateConfig{}
 
 	cmd := &cobra.Command{
-		Use: "generate",
+		Use:   "generate",
 		Short: "Generates a Dockerfile based on input",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			switch cfg.inputType {
@@ -39,7 +39,7 @@ func NewCmdGenerate() *cobra.Command {
 
 	cmd.PersistentFlags().StringVarP(&cfg.input, "input", "i", "", "Input path")
 	cmd.PersistentFlags().StringVarP(&cfg.output, "out", "o", "", "Output file path")
-	cmd.PersistentFlags().BoolVar(&cfg.stdout,"stdout", false, "When true, output will be redirected to stdout")
+	cmd.PersistentFlags().BoolVar(&cfg.stdout, "stdout", false, "When true, output will be redirected to stdout")
 	cmd.PersistentFlags().StringVarP(&cfg.inputType, "type", "t", "", "Input type (yaml-file)")
 
 	return cmd

@@ -5,6 +5,6 @@ import (
 )
 
 func Run() error {
-    cmd := cmd.NewDfgCommand()
-    return cmd.Execute()
+	cmd := cmd.NewDfgCommand()
+	return cmd.Execute()
 }
