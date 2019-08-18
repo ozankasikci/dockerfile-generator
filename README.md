@@ -22,6 +22,8 @@
 
 `dfg` is a Dockerfile generator that accepts input data from various sources, produces and redirects the generated Dockerfile to an output target such as a file or stdout.
 
+It is especially useful for generating Dockerfile instructions conditionally since Dockerfile language has no control flow logic.
+
 ## Installation
 #### Installing as an Executable
 
