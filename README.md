@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.org/ozankasikci/dockerfile-generator.svg?branch=master)](https://travis-ci.org/ozankasikci/dockerfile-generator)
 [![GoDoc](https://godoc.org/github.com/ozankasikci/dockerfile-generator?status.svg)](https://godoc.org/github.com/ozankasikci/dockerfile-generator)
 [![Coverage Status](https://coveralls.io/repos/github/ozankasikci/dockerfile-generator/badge.svg?branch=master)](https://coveralls.io/github/ozankasikci/dockerfile-generator?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ozankasikci/dockerfile-generator)](https://goreportcard.com/report/github.com/ozankasikci/dockerfile-generator)
 
 ## Table of Contents
 
