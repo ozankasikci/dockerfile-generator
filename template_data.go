@@ -11,19 +11,19 @@ type RunForm string
 
 const (
 	// ExecForm is essentially a json array of string, e.g. ["echo", "1"]
-	ExecForm                 RunForm = "ExecForm"
+	ExecForm RunForm = "ExecForm"
 
 	// ShellForm is the form of a usual terminal command, e.g. echo 1
-	ShellForm                RunForm = "ShellForm"
+	ShellForm RunForm = "ShellForm"
 
 	// RunCommandDefaultRunForm is the default RunForm for RunCommand
-	RunCommandDefaultRunForm         = ShellForm
+	RunCommandDefaultRunForm = ShellForm
 
 	// CmdDefaultRunForm is the default RunForm for Cmd
-	CmdDefaultRunForm                = ExecForm
+	CmdDefaultRunForm = ExecForm
 
 	// EntrypointDefaultRunForm is the default RunForm for Entrypoint
-	EntrypointDefaultRunForm         = ExecForm
+	EntrypointDefaultRunForm = ExecForm
 )
 
 // Instruction represents a Dockerfile instruction, e.g. FROM alpine:latest
@@ -134,9 +134,9 @@ func (r RunCommand) Render() string {
 
 	if r.RunForm == ExecForm {
 		return fmt.Sprintf("RUN %s", r.ExecForm())
-	} else {
-		return fmt.Sprintf("RUN %s", r.ShellForm())
 	}
+
+	return fmt.Sprintf("RUN %s", r.ShellForm())
 }
 
 // EnvVariable represents a Dockerfile instruction, see https://docs.docker.com/engine/reference/builder/#env
@@ -190,9 +190,9 @@ func (c Cmd) Render() string {
 
 	if c.RunForm == ExecForm {
 		return fmt.Sprintf("CMD %s", c.ExecForm())
-	} else {
-		return fmt.Sprintf("CMD %s", c.ShellForm())
 	}
+
+	return fmt.Sprintf("CMD %s", c.ShellForm())
 }
 
 // Entrypoint represents a Dockerfile instruction, see https://docs.docker.com/engine/reference/builder/#entrypoint
@@ -209,9 +209,9 @@ func (e Entrypoint) Render() string {
 
 	if e.RunForm == ExecForm {
 		return fmt.Sprintf("ENTRYPOINT %s", e.ExecForm())
-	} else {
-		return fmt.Sprintf("ENTRYPOINT %s", e.ShellForm())
 	}
+
+	return fmt.Sprintf("ENTRYPOINT %s", e.ShellForm())
 }
 
 // Onbuild represents a Dockerfile instruction, see https://docs.docker.com/engine/reference/builder/#onbuuild
