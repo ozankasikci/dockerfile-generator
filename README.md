@@ -51,7 +51,7 @@ chmod +x dfg && sudo mv dfg /usr/local/bin
 
 Available commands:
 
-`dfg generate --input path/to/yaml --out Dockerfile` generates a file from the input yaml file
+`dfg generate --input path/to/yaml --out Dockerfile` generates a file named `Dockerfile` from the input yaml file
 
 `dfg generate --help` lists available flags
 
