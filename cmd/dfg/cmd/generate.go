@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	// specifies that the input channel will be a yaml file, this is the default
 	YAMLFileInput = "yaml-file"
 )
 
@@ -18,6 +19,7 @@ type cmdGenerateConfig struct {
 	stdout    bool
 }
 
+// Generate command is responsible for generating a Dockerfile output
 func NewCmdGenerate() *cobra.Command {
 	cfg := &cmdGenerateConfig{}
 

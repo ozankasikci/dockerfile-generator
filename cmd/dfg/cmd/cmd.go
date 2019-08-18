@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Generates a dfg command
 func NewDfgCommand() *cobra.Command {
 	cmds := &cobra.Command{
 		Use:   "dfg",

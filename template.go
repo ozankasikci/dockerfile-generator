@@ -2,7 +2,7 @@
 Package dockerfile-generator is a Dockerfile generation library. It receives any kind of Dockerfile instructions
 and spits out a generated Dockerfile.
 */
-package dockerfile_generator
+package dockerfilegenerator
 
 import (
 	"errors"

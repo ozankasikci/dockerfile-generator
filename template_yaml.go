@@ -1,4 +1,4 @@
-package dockerfile_generator
+package dockerfilegenerator
 
 import (
 	"errors"
@@ -7,26 +7,18 @@ import (
 	"io/ioutil"
 )
 
+// DockerfileDataYaml is used to decode yaml data. It has a Stages map instead of a slice for that purpose.
 type DockerfileDataYaml struct {
 	Stages map[string]Stage `yaml:"stages"`
 }
 
-//func (s *DockerfileDataYaml) UnmarshalYAML(unmarshal func(interface{}) error) error {
-//	var person Node
-//	var data []Stage
-//	_ := yaml.Unmarshal(data, &person)
-//	fmt.Printf("%v\n", person)
-//	return nil
-//}
-
-type YAMLMapStringInterface map[string]interface{}
-type YAMLMapInterfaceInterface map[interface{}]interface{}
+type yamlMapStringInterface map[string]interface{}
+type yamlMapInterfaceInterface map[interface{}]interface{}
 
 func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} {
 	v, ok := value.(map[interface{}]interface{})
 	if !ok {
-		panic("no")
-		//return nil, errors.New(fmt.Sprintf("Expected map[interface]interface found, %T", value))
+		panic(fmt.Sprintf("Yaml contains un expected data, caused by %v", value))
 	}
 
 	return v
@@ -35,8 +27,7 @@ func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} 
 func ensureMapStringInterface(value interface{}) map[string]interface{} {
 	v, ok := value.(map[string]interface{})
 	if !ok {
-		panic("no")
-		//return nil, errors.New(fmt.Sprintf("Expected map[string]interface found, %T", value))
+		panic(fmt.Sprintf("Yaml contains un expected data, caused by %v", value))
 	}
 
 	return v
@@ -81,7 +72,7 @@ func convertSliceInterfaceToString(s interface{}) ([]string, error) {
 	return res, nil
 }
 
-func cleanUpFrom(value YAMLMapStringInterface) From {
+func cleanUpFrom(value yamlMapStringInterface) From {
 	v := convertMapStringInterfaceToString(value)
 	var from From
 
@@ -96,7 +87,7 @@ func cleanUpFrom(value YAMLMapStringInterface) From {
 	return from
 }
 
-func cleanUpArg(value YAMLMapInterfaceInterface) Arg {
+func cleanUpArg(value yamlMapInterfaceInterface) Arg {
 	v := convertMapInterfaceToString(value)
 	var arg Arg
 
@@ -119,7 +110,7 @@ func cleanUpArg(value YAMLMapInterfaceInterface) Arg {
 	return arg
 }
 
-func cleanUpLabel(value YAMLMapStringInterface) Label {
+func cleanUpLabel(value yamlMapStringInterface) Label {
 	v := convertMapStringInterfaceToString(value)
 	var l Label
 
@@ -134,7 +125,7 @@ func cleanUpLabel(value YAMLMapStringInterface) Label {
 	return l
 }
 
-func cleanUpVolume(value YAMLMapStringInterface) Volume {
+func cleanUpVolume(value yamlMapStringInterface) Volume {
 	v := convertMapStringInterfaceToString(value)
 	var vlm Volume
 
@@ -149,7 +140,7 @@ func cleanUpVolume(value YAMLMapStringInterface) Volume {
 	return vlm
 }
 
-func cleanUpRunCommand(value YAMLMapInterfaceInterface) RunCommand {
+func cleanUpRunCommand(value yamlMapInterfaceInterface) RunCommand {
 	var r RunCommand
 	v := convertMapInterfaceToString(value)
 
@@ -169,7 +160,7 @@ func cleanUpRunCommand(value YAMLMapInterfaceInterface) RunCommand {
 	return r
 }
 
-func cleanUpEnvVariable(value YAMLMapStringInterface) EnvVariable {
+func cleanUpEnvVariable(value yamlMapStringInterface) EnvVariable {
 	v := convertMapStringInterfaceToString(value)
 	var e EnvVariable
 
@@ -184,7 +175,7 @@ func cleanUpEnvVariable(value YAMLMapStringInterface) EnvVariable {
 	return e
 }
 
-func cleanUpCopyCommand(value YAMLMapInterfaceInterface) CopyCommand {
+func cleanUpCopyCommand(value yamlMapInterfaceInterface) CopyCommand {
 	var c CopyCommand
 	v := convertMapInterfaceToString(value)
 
@@ -209,7 +200,7 @@ func cleanUpCopyCommand(value YAMLMapInterfaceInterface) CopyCommand {
 	return c
 }
 
-func cleanUpCmd(value YAMLMapInterfaceInterface) Cmd {
+func cleanUpCmd(value yamlMapInterfaceInterface) Cmd {
 	var c Cmd
 	v := convertMapInterfaceToString(value)
 
@@ -229,7 +220,7 @@ func cleanUpCmd(value YAMLMapInterfaceInterface) Cmd {
 	return c
 }
 
-func cleanUpEntrypoint(value YAMLMapInterfaceInterface) Entrypoint {
+func cleanUpEntrypoint(value yamlMapInterfaceInterface) Entrypoint {
 	var e Entrypoint
 	v := convertMapInterfaceToString(value)
 
@@ -249,7 +240,7 @@ func cleanUpEntrypoint(value YAMLMapInterfaceInterface) Entrypoint {
 	return e
 }
 
-func cleanUpOnbuild(value YAMLMapInterfaceInterface) Onbuild {
+func cleanUpOnbuild(value yamlMapInterfaceInterface) Onbuild {
 	var o Onbuild
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -261,7 +252,7 @@ func cleanUpOnbuild(value YAMLMapInterfaceInterface) Onbuild {
 	return o
 }
 
-func cleanUpHealthCheck(value YAMLMapInterfaceInterface) HealthCheck {
+func cleanUpHealthCheck(value yamlMapInterfaceInterface) HealthCheck {
 	var h HealthCheck
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -273,7 +264,7 @@ func cleanUpHealthCheck(value YAMLMapInterfaceInterface) HealthCheck {
 	return h
 }
 
-func cleanUpShell(value YAMLMapInterfaceInterface) Shell {
+func cleanUpShell(value yamlMapInterfaceInterface) Shell {
 	var s Shell
 
 	params, err := convertSliceInterfaceToString(value["params"])
@@ -285,7 +276,7 @@ func cleanUpShell(value YAMLMapInterfaceInterface) Shell {
 	return s
 }
 
-func cleanUpWorkdir(value YAMLMapStringInterface) Workdir {
+func cleanUpWorkdir(value yamlMapStringInterface) Workdir {
 	v := convertMapStringInterfaceToString(value)
 	var w Workdir
 
@@ -365,16 +356,16 @@ func cleanUpMapValue(v interface{}) Instruction {
 func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYaml) error {
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return errors.New(fmt.Sprintf("yamlFile.Get err   #%v ", err))
+		return fmt.Errorf("yamlFile.Get err   #%v ", err)
 	}
 	err = yaml.Unmarshal(yamlFile, node)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unmarshal: %v", err))
+		return fmt.Errorf("Unmarshal: %v", err)
 	}
 
 	err = node.Decode(data)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unmarshal: %v", err))
+		return fmt.Errorf("Unmarshal: %v", err)
 	}
 
 	return nil
