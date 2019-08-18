@@ -1,37 +1,39 @@
 /*
-Package dockerfile-generator is a Dockerfile generation library. It receives any kind of Dockerfile instructions
+Package dockerfilegenerator is a Dockerfile generation library. It receives any kind of Dockerfile instructions
 and spits out a generated Dockerfile.
 */
 package dockerfilegenerator
 
 import (
-	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io"
 	"text/template"
 )
 
+// DockerfileTemplate defines the template struct that generates Dockerfile output
 type DockerfileTemplate struct {
 	Data *DockerfileData
 }
 
+// NewDockerfileTemplate return a new NewDockerfileTemplate instance
 func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
 	return &DockerfileTemplate{Data: data}
 }
 
+// NewDockerFileDataFromYamlFile reads a file and return a *DockerfileData
 func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
 	d := &DockerfileDataYaml{}
 	node := &yaml.Node{}
 
 	err := unmarshallYamlFile(filename, node, d)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Unmarshal: %v", err))
+		return nil, fmt.Errorf("Unmarshal: %v", err)
 	}
 
 	stagesInOrder, err := getStagesOrderFromYamlNode(node)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Unmarshal: %v", err))
+		return nil, fmt.Errorf("Unmarshal: %v", err)
 	}
 
 	var stages []Stage
