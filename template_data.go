@@ -62,6 +62,7 @@ type Arg struct {
 	EnvVariable bool   `yaml:"envVariable,omitempty"`
 }
 
+// Render returns a string in the form of ARG <name>[=<default value>]
 func (a Arg) Render() string {
 	res := fmt.Sprintf("ARG %s", a.Name)
 
