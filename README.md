@@ -83,6 +83,7 @@ stages:
           - apt-get update &&
           - apt-get install -y
           - php5
+          - libapache2-mod-php5 &&
           - apt-get clean &&
           - rm -rf /var/lib/apt/lists/*
     - cmd:
@@ -106,7 +107,7 @@ err = tmpl.Render(output)
 
 ```dockerfile
 FROM kstaken/apache2
-RUN apt-get update && apt-get install -y php5 apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get clean && rm -rf /var/lib/apt/lists/*
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 ```
 
