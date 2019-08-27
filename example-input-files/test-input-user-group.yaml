@@ -1,0 +1,17 @@
+
+stages:
+  builder:
+    - from:
+        image: alpine:latest
+        as: builder
+    - user:
+        user: ozan
+        group: admin
+  final:
+    - from:
+        image: alpine:latest
+        as: final
+    - user:
+        # be careeful with integers, they should be wrapped with double quotes
+        user: "1000"
+        group: "1000"

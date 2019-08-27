@@ -1,0 +1,10 @@
+
+stages:
+  builder:
+    - from:
+        image: alpine:latest
+        as: builder
+  final:
+    - from:
+        image: alpine:latest
+        as: final
