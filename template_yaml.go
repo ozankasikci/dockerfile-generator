@@ -358,7 +358,7 @@ func cleanUpMapIISimpleInstructions(instructionName string, value interface{}) I
 		return cleanUpUserMap(v)
 	}
 
-	panic("Unknown instruction in cleanUpMapIISimpleInstructions method!")
+	panic(errorStringWithType(value))
 }
 
 func cleanUpMapIIComplexInstructions(instructionName string, value interface{}) Instruction {
