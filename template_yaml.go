@@ -27,13 +27,22 @@ func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} 
 func ensureMapStringInterface(value interface{}) map[string]interface{} {
 	v, ok := value.(map[string]interface{})
 	if !ok {
-		panic(fmt.Sprintf("Yaml contains un expected data, caused by %v", value))
+		panic(fmt.Sprintf("Yaml contains un expected data, caused by %[1]v, type: %[1]T", value))
 	}
 
 	return v
 }
 
-func convertMapInterfaceToString(mapInterface map[interface{}]interface{}) map[string]string {
+func ensureMapString(value interface{}) string {
+	v, ok := value.(string)
+	if !ok {
+		panic(fmt.Sprintf("Yaml contains un expected data, caused by %[1]v, type: %[1]T", value))
+	}
+
+	return v
+}
+
+func convertMapIIToMapSS(mapInterface map[interface{}]interface{}) map[string]string {
 	mapString := make(map[string]string)
 
 	for key, value := range mapInterface {
@@ -45,7 +54,7 @@ func convertMapInterfaceToString(mapInterface map[interface{}]interface{}) map[s
 	return mapString
 }
 
-func convertMapStringInterfaceToString(mapInterface map[string]interface{}) map[string]string {
+func convertMapSIToMapSS(mapInterface yamlMapStringInterface) map[string]string {
 	mapString := make(map[string]string)
 
 	for key, value := range mapInterface {
@@ -73,7 +82,7 @@ func convertSliceInterfaceToString(s interface{}) ([]string, error) {
 }
 
 func cleanUpFrom(value yamlMapStringInterface) From {
-	v := convertMapStringInterfaceToString(value)
+	v := convertMapSIToMapSS(value)
 	var from From
 
 	if v["image"] != "" {
@@ -88,7 +97,7 @@ func cleanUpFrom(value yamlMapStringInterface) From {
 }
 
 func cleanUpArg(value yamlMapInterfaceInterface) Arg {
-	v := convertMapInterfaceToString(value)
+	v := convertMapIIToMapSS(value)
 	var arg Arg
 
 	if v["name"] != "" {
@@ -111,7 +120,7 @@ func cleanUpArg(value yamlMapInterfaceInterface) Arg {
 }
 
 func cleanUpLabel(value yamlMapStringInterface) Label {
-	v := convertMapStringInterfaceToString(value)
+	v := convertMapSIToMapSS(value)
 	var l Label
 
 	if v["name"] != "" {
@@ -126,7 +135,7 @@ func cleanUpLabel(value yamlMapStringInterface) Label {
 }
 
 func cleanUpVolume(value yamlMapStringInterface) Volume {
-	v := convertMapStringInterfaceToString(value)
+	v := convertMapSIToMapSS(value)
 	var vlm Volume
 
 	if v["source"] != "" {
@@ -142,7 +151,7 @@ func cleanUpVolume(value yamlMapStringInterface) Volume {
 
 func cleanUpRunCommand(value yamlMapInterfaceInterface) RunCommand {
 	var r RunCommand
-	v := convertMapInterfaceToString(value)
+	v := convertMapIIToMapSS(value)
 
 	params, err := convertSliceInterfaceToString(value["params"])
 	if err != nil {
@@ -161,7 +170,7 @@ func cleanUpRunCommand(value yamlMapInterfaceInterface) RunCommand {
 }
 
 func cleanUpEnvVariable(value yamlMapStringInterface) EnvVariable {
-	v := convertMapStringInterfaceToString(value)
+	v := convertMapSIToMapSS(value)
 	var e EnvVariable
 
 	if v["name"] != "" {
@@ -177,7 +186,7 @@ func cleanUpEnvVariable(value yamlMapStringInterface) EnvVariable {
 
 func cleanUpCopyCommand(value yamlMapInterfaceInterface) CopyCommand {
 	var c CopyCommand
-	v := convertMapInterfaceToString(value)
+	v := convertMapIIToMapSS(value)
 
 	params, err := convertSliceInterfaceToString(value["sources"])
 	if err != nil {
@@ -202,7 +211,7 @@ func cleanUpCopyCommand(value yamlMapInterfaceInterface) CopyCommand {
 
 func cleanUpCmd(value yamlMapInterfaceInterface) Cmd {
 	var c Cmd
-	v := convertMapInterfaceToString(value)
+	v := convertMapIIToMapSS(value)
 
 	params, err := convertSliceInterfaceToString(value["params"])
 	if err != nil {
@@ -222,7 +231,7 @@ func cleanUpCmd(value yamlMapInterfaceInterface) Cmd {
 
 func cleanUpEntrypoint(value yamlMapInterfaceInterface) Entrypoint {
 	var e Entrypoint
-	v := convertMapInterfaceToString(value)
+	v := convertMapIIToMapSS(value)
 
 	params, err := convertSliceInterfaceToString(value["params"])
 	if err != nil {
@@ -277,7 +286,7 @@ func cleanUpShell(value yamlMapInterfaceInterface) Shell {
 }
 
 func cleanUpWorkdir(value yamlMapStringInterface) Workdir {
-	v := convertMapStringInterfaceToString(value)
+	v := convertMapSIToMapSS(value)
 	var w Workdir
 
 	if v["dir"] != "" {
@@ -285,6 +294,25 @@ func cleanUpWorkdir(value yamlMapStringInterface) Workdir {
 	}
 
 	return w
+}
+
+func cleanUpUserString(value string) User {
+	return User{User: value}
+}
+
+func cleanUpUserMap(value yamlMapStringInterface) User {
+	v := convertMapSIToMapSS(value)
+	var u User
+
+	if v["user"] != "" {
+		u.User = v["user"]
+	}
+
+	if v["group"] != "" {
+		u.Group = v["group"]
+	}
+
+	return u
 }
 
 func cleanUpInterfaceArray(in []interface{}) []Instruction {
@@ -295,7 +323,19 @@ func cleanUpInterfaceArray(in []interface{}) []Instruction {
 	return result
 }
 
-func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
+func cleanUpMapSI(in map[string]interface{}) Instruction {
+	for key, value := range in {
+		switch key {
+		case "user":
+			v := ensureMapString(value)
+			return cleanUpUserString(v)
+		}
+	}
+
+	panic("Unknown instruction in yaml!")
+}
+
+func cleanUpMapII(in map[interface{}]interface{}) Instruction {
 	for key, value := range in {
 		switch key {
 		case "from":
@@ -337,6 +377,9 @@ func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
 		case "workdir":
 			v := ensureMapStringInterface(value)
 			return cleanUpWorkdir(v)
+		case "user":
+			v := ensureMapStringInterface(value)
+			return cleanUpUserMap(v)
 		}
 
 	}
@@ -346,8 +389,10 @@ func cleanUpInterfaceMap(in map[interface{}]interface{}) Instruction {
 
 func cleanUpMapValue(v interface{}) Instruction {
 	switch v := v.(type) {
+	case map[string]interface{}:
+		return cleanUpMapSI(v)
 	case map[interface{}]interface{}:
-		return cleanUpInterfaceMap(v)
+		return cleanUpMapII(v)
 	default:
 		panic("Invalid instruction type in yaml!")
 	}
