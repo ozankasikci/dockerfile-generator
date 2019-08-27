@@ -44,6 +44,12 @@ curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/down
 chmod +x dfg && sudo mv dfg /usr/local/bin
 ```
 
+* Windows
+
+```shell
+curl -o dfg.exe -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v0.0.1/dfg_windows_amd64.exe
+```
+
 #### Installing as a Library
 
 `go get -u github.com/ozankasikci/dockerfile-generator`
