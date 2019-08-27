@@ -254,6 +254,28 @@ func (w Workdir) Render() string {
 	return fmt.Sprintf("WORKDIR %s", w.Dir)
 }
 
+type User struct {
+	User  string `yaml:user`
+	Group string `yaml:group`
+}
+
+// Render returns a string in the form of WORKDIR /path/to/workdir
+func (u User) Render() string {
+	res := "USER"
+
+	if u.User == "" && u.Group == "" {
+		return ""
+	}
+
+	res = fmt.Sprintf("%s %s", res, u.User)
+
+	if u.Group != "" {
+		res = fmt.Sprintf("%s:%s", res, u.Group)
+	}
+
+	return res
+}
+
 // Params is struct that supports rendering exec and shell form string
 type Params []string
 
