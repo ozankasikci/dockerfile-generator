@@ -20,6 +20,9 @@ func TestCodeRendering(t *testing.T) {
 				Workdir{
 					Dir: "/go/src/github.com/alexellis/href-counter/",
 				},
+				User{
+					User: "ozan",
+				},
 				RunCommand{
 					Params: []string{"go", "get", "-d", "-v", "golang.org/x/net/html"},
 				},
@@ -61,6 +64,7 @@ ARG arg-name
 RUN test -n "${arg-name}"
 ENV arg-name="${arg-name}"
 WORKDIR /go/src/github.com/alexellis/href-counter/
+USER ozan
 RUN go get -d -v golang.org/x/net/html
 COPY app.go .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
@@ -70,6 +74,68 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
 CMD ["./app"]
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
+}
+
+func TestCodeRenderingWithoutUser(t *testing.T) {
+	data := &DockerfileData{
+		Stages: []Stage{
+			// Stage 1 - Builder
+			[]Instruction{
+				From{
+					Image: "golang:1.7.3", As: "builder",
+				},
+			},
+			[]Instruction{
+				From{
+					Image: "alpine:latest", As: "final",
+				},
+				Cmd{
+					Params: []string{"./app"},
+				},
+			},
+		},
+	}
+
+	tmpl := NewDockerfileTemplate(data)
+	output := &bytes.Buffer{}
+	err := tmpl.Render(output)
+	assert.NoError(t, err)
+
+	expectedOutput := `FROM golang:1.7.3 as builder
+
+FROM alpine:latest as final
+CMD ["./app"]
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
+}
+func TestCodeRenderingWithUserMap(t *testing.T) {
+	data := &DockerfileData{
+		Stages: []Stage{
+			// Stage 1 - Builder
+			[]Instruction{
+				From{
+					Image: "golang:1.7.3", As: "builder",
+				},
+				User{
+					User: "ozan", Group: "admin",
+				},
+			},
+		},
+	}
+
+	tmpl := NewDockerfileTemplate(data)
+	output := &bytes.Buffer{}
+	err := tmpl.Render(output)
+	assert.NoError(t, err)
+
+	expectedOutput := `FROM golang:1.7.3 as builder
+USER ozan:admin
 
 `
 
@@ -87,6 +153,7 @@ func TestYamlRendering(t *testing.T) {
 
 	expectedOutput := `FROM alpine:latest as builder
 WORKDIR /app
+USER ozan
 ARG test-arg=arg-value
 RUN test -n "${test-arg}"
 ENV test-arg="${test-arg}"
@@ -107,6 +174,44 @@ ENTRYPOINT ["echo", "test"]
 HEALTHCHECK --interval=DURATION --timeout=3s CMD curl -f http://localhost/
 SHELL ["powershell", "-command"]
 WORKDIR test dir
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
+}
+
+func TestYamlRenderingNoUser(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlFile("./example-input-files/test-input-no-user.yaml")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	expectedOutput := `FROM alpine:latest as builder
+
+FROM alpine:latest as final
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
+}
+
+func TestYamlRenderingUserAndGroup(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlFile("./example-input-files/test-input-user-group.yaml")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	expectedOutput := `FROM alpine:latest as builder
+USER ozan:admin
+
+FROM alpine:latest as final
+USER 1000:1000
 
 `
 

@@ -6,6 +6,7 @@ stages:
         as: builder
     - workdir:
         dir: /app
+    - user: ozan
     - arg:
         name: test-arg
         value: arg-value
