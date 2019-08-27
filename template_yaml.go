@@ -350,7 +350,7 @@ func cleanUpMapIISimpleInstructions(instructionName string, value interface{}) I
 		return cleanUpLabel(v)
 	case "volume":
 		return cleanUpVolume(v)
-	case "envVariable":
+	case "envvariable":
 		return cleanUpEnvVariable(v)
 	case "workdir":
 		return cleanUpWorkdir(v)
