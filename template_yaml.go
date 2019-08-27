@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"strings"
 )
 
 // DockerfileDataYaml is used to decode yaml data. It has a Stages map instead of a slice for that purpose.
@@ -15,10 +16,14 @@ type DockerfileDataYaml struct {
 type yamlMapStringInterface map[string]interface{}
 type yamlMapInterfaceInterface map[interface{}]interface{}
 
+func errorStringWithType(value interface{}) string {
+	return fmt.Sprintf("Yaml contains an expected data, caused by %[1]v, type: %[1]T\n", value)
+}
+
 func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} {
 	v, ok := value.(map[interface{}]interface{})
 	if !ok {
-		panic(fmt.Sprintf("Yaml contains un expected data, caused by %v", value))
+		panic(errorStringWithType(value))
 	}
 
 	return v
@@ -27,7 +32,7 @@ func ensureMapInterfaceInterface(value interface{}) map[interface{}]interface{} 
 func ensureMapStringInterface(value interface{}) map[string]interface{} {
 	v, ok := value.(map[string]interface{})
 	if !ok {
-		panic(fmt.Sprintf("Yaml contains un expected data, caused by %[1]v, type: %[1]T", value))
+		panic(errorStringWithType(value))
 	}
 
 	return v
@@ -36,7 +41,7 @@ func ensureMapStringInterface(value interface{}) map[string]interface{} {
 func ensureMapString(value interface{}) string {
 	v, ok := value.(string)
 	if !ok {
-		panic(fmt.Sprintf("Yaml contains un expected data, caused by %[1]v, type: %[1]T", value))
+		panic(errorStringWithType(value))
 	}
 
 	return v
@@ -335,51 +340,54 @@ func cleanUpMapSI(in map[string]interface{}) Instruction {
 	panic("Unknown instruction in yaml!")
 }
 
+func cleanUpMapIISimpleInstructions(instructionName string, value interface{}) Instruction {
+	v := ensureMapStringInterface(value)
+
+	switch strings.ToLower(instructionName) {
+	case "from": return cleanUpFrom(v)
+	case "label": return cleanUpLabel(v)
+	case "volume": return cleanUpVolume(v)
+	case "envVariable": return cleanUpEnvVariable(v)
+	case "workdir": return cleanUpWorkdir(v)
+	case "user": return cleanUpUserMap(v)
+	}
+
+	panic("Unknown instruction in cleanUpMapIISimpleInstructions method!")
+}
+
+func cleanUpMapIIComplexInstructions(instructionName string, value interface{}) Instruction {
+	v := ensureMapInterfaceInterface(value)
+
+	switch strings.ToLower(instructionName) {
+	case "healthcheck": return cleanUpHealthCheck(v)
+	case "onbuild": return cleanUpOnbuild(v)
+	case "entrypoint": return cleanUpEntrypoint(v)
+	case "cmd": return cleanUpCmd(v)
+	case "copy": return cleanUpCopyCommand(v)
+	case "arg": return cleanUpArg(v)
+	case "run": return cleanUpRunCommand(v)
+	case "shell": return cleanUpShell(v)
+	}
+
+	panic(errorStringWithType(value))
+}
+
 func cleanUpMapII(in map[interface{}]interface{}) Instruction {
 	for key, value := range in {
-		switch key {
-		case "from":
-			v := ensureMapStringInterface(value)
-			return cleanUpFrom(v)
-		case "arg":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpArg(v)
-		case "label":
-			v := ensureMapStringInterface(value)
-			return cleanUpLabel(v)
-		case "volume":
-			v := ensureMapStringInterface(value)
-			return cleanUpVolume(v)
-		case "run":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpRunCommand(v)
-		case "envVariable":
-			v := ensureMapStringInterface(value)
-			return cleanUpEnvVariable(v)
-		case "copy":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpCopyCommand(v)
-		case "cmd":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpCmd(v)
-		case "entrypoint":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpEntrypoint(v)
-		case "onbuild":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpOnbuild(v)
-		case "healthCheck":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpHealthCheck(v)
-		case "shell":
-			v := ensureMapInterfaceInterface(value)
-			return cleanUpShell(v)
-		case "workdir":
-			v := ensureMapStringInterface(value)
-			return cleanUpWorkdir(v)
-		case "user":
-			v := ensureMapStringInterface(value)
-			return cleanUpUserMap(v)
+
+		switch value.(type) {
+		case map[string]interface{}:
+			key, ok := key.(string)
+			if !ok {
+				panic(errorStringWithType(key))
+			}
+			return cleanUpMapIISimpleInstructions(key, value)
+		case map[interface{}]interface{}:
+			key, ok := key.(string)
+			if !ok {
+				panic(errorStringWithType(key))
+			}
+			return cleanUpMapIIComplexInstructions(key, value)
 		}
 
 	}

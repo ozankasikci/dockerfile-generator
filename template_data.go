@@ -254,6 +254,7 @@ func (w Workdir) Render() string {
 	return fmt.Sprintf("WORKDIR %s", w.Dir)
 }
 
+// User represents a Dockerfile instruction, see https://docs.docker.com/engine/reference/builder/#user
 type User struct {
 	User  string `yaml:user`
 	Group string `yaml:group`
