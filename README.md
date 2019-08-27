@@ -133,6 +133,9 @@ func main() {
 				dfg.From{
 					Image: "golang:1.7.3", As: "builder",
 				},
+				dfg.User{
+					User: "ozan",
+				},
 				dfg.Workdir{
 					Dir: "/go/src/github.com/alexellis/href-counter/",
 				},
@@ -153,6 +156,9 @@ func main() {
 				},
 				dfg.RunCommand{
 					Params: []string{"apk", "--no-cache", "add", "ca-certificates"},
+				},
+				dfg.User{
+					User: "root", Group: "admin",
 				},
 				dfg.Workdir{
 					Dir: "/root/",
@@ -180,6 +186,7 @@ func main() {
 #### Output
 ```Dockerfile
 FROM golang:1.7.3 as builder
+USER ozan
 WORKDIR /go/src/github.com/alexellis/href-counter/
 RUN go get -d -v golang.org/x/net/html
 COPY app.go .
@@ -187,6 +194,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 
 FROM alpine:latest as final
 RUN apk --no-cache add ca-certificates
+USER root:admin
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
 CMD ["./app"]
