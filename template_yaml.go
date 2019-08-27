@@ -344,12 +344,18 @@ func cleanUpMapIISimpleInstructions(instructionName string, value interface{}) I
 	v := ensureMapStringInterface(value)
 
 	switch strings.ToLower(instructionName) {
-	case "from": return cleanUpFrom(v)
-	case "label": return cleanUpLabel(v)
-	case "volume": return cleanUpVolume(v)
-	case "envVariable": return cleanUpEnvVariable(v)
-	case "workdir": return cleanUpWorkdir(v)
-	case "user": return cleanUpUserMap(v)
+	case "from":
+		return cleanUpFrom(v)
+	case "label":
+		return cleanUpLabel(v)
+	case "volume":
+		return cleanUpVolume(v)
+	case "envVariable":
+		return cleanUpEnvVariable(v)
+	case "workdir":
+		return cleanUpWorkdir(v)
+	case "user":
+		return cleanUpUserMap(v)
 	}
 
 	panic("Unknown instruction in cleanUpMapIISimpleInstructions method!")
@@ -359,14 +365,22 @@ func cleanUpMapIIComplexInstructions(instructionName string, value interface{}) 
 	v := ensureMapInterfaceInterface(value)
 
 	switch strings.ToLower(instructionName) {
-	case "healthcheck": return cleanUpHealthCheck(v)
-	case "onbuild": return cleanUpOnbuild(v)
-	case "entrypoint": return cleanUpEntrypoint(v)
-	case "cmd": return cleanUpCmd(v)
-	case "copy": return cleanUpCopyCommand(v)
-	case "arg": return cleanUpArg(v)
-	case "run": return cleanUpRunCommand(v)
-	case "shell": return cleanUpShell(v)
+	case "healthcheck":
+		return cleanUpHealthCheck(v)
+	case "onbuild":
+		return cleanUpOnbuild(v)
+	case "entrypoint":
+		return cleanUpEntrypoint(v)
+	case "cmd":
+		return cleanUpCmd(v)
+	case "copy":
+		return cleanUpCopyCommand(v)
+	case "arg":
+		return cleanUpArg(v)
+	case "run":
+		return cleanUpRunCommand(v)
+	case "shell":
+		return cleanUpShell(v)
 	}
 
 	panic(errorStringWithType(value))
