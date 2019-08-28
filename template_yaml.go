@@ -423,7 +423,7 @@ func cleanUpMapValue(v interface{}) Instruction {
 func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYaml) error {
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("yamlFile.Get err   #%v ", err)
+		return fmt.Errorf("yamlFile.Get err #%v", err)
 	}
 	err = yaml.Unmarshal(yamlFile, node)
 	if err != nil {

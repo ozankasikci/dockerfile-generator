@@ -225,5 +225,10 @@ func TestYamlRenderingFail(t *testing.T) {
 
 	output := &bytes.Buffer{}
 	err = tmpl.Render(output)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "template: dockerfile.template:1:10: executing \"dockerfile.template\" at <.Stages>: can't evaluate field Stages in type *dockerfilegenerator.DockerfileData")
+}
+
+func TestInvalidYamlFilePath(t *testing.T) {
+	_, err := NewDockerFileDataFromYamlFile("non-existent.yaml")
+	assert.EqualError(t, err, "Unmarshal: yamlFile.Get err #open non-existent.yaml: no such file or directory")
 }
