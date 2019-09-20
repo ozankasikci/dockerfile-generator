@@ -225,7 +225,7 @@ func TestYamlRenderingFail(t *testing.T) {
 
 	output := &bytes.Buffer{}
 	err = tmpl.Render(output)
-	assert.EqualError(t, err, "template: dockerfile.template:1:10: executing \"dockerfile.template\" at <.Stages>: can't evaluate field Stages in type *dockerfilegenerator.DockerfileData")
+	assert.Error(t, err)
 }
 
 func TestInvalidYamlFilePath(t *testing.T) {
