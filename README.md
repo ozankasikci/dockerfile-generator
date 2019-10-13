@@ -202,6 +202,7 @@ CMD ["./app"]
 ```
 
 ## TODO
+- [ ] Add reading Dockerfile data from an existing yaml file support
 - [ ] Implement json file input channel
 - [ ] Implement stdin input channel
 - [ ] Implement toml file input channel
