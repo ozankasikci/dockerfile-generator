@@ -19,7 +19,7 @@ stages:
         runForm: shell
         params:
           - echo
-          - '"test"'
+          - "\"test\""
           - 1
     - envVariable:
         name: env
