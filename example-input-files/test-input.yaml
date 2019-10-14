@@ -71,4 +71,4 @@ stages:
           - powershell
           - -command
     - workdir:
-        dir: test dir
+        dir: "test dir"
