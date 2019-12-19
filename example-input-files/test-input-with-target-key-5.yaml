@@ -1,0 +1,114 @@
+prod:
+  apache:
+    stages:
+      final:
+        - from:
+            image: kstaken/apache2
+        - run:
+            runForm: shell
+            params:
+              - apt-get update &&
+              - apt-get install -y
+              - php5
+              - libapache2-mod-php5 &&
+              - apt-get clean &&
+              - rm -rf /var/lib/apt/lists/*
+        - cmd:
+            params:
+              - /usr/sbin/apache2
+              - -D
+              - FOREGROUND
+dev:
+  apache:
+    stages:
+      final:
+        - from:
+            image: kstaken/apache2
+        - run:
+            runForm: shell
+            params:
+              - apt-get update &&
+              - apt-get install -y
+              - php5
+              - libapache2-mod-php5 &&
+              - apt-get clean &&
+              - rm -rf /var/lib/apt/lists/*
+        - cmd:
+            params:
+              - /usr/sbin/apache2
+              - -D
+              - FOREGROUND
+  server:
+    stages:
+      builder:
+        - from:
+            image: alpine:latest
+            as: builder
+        - workdir:
+            dir: /app
+        - user: ozan
+        - arg:
+            name: test-arg
+            value: arg-value
+            test: true
+            envVariable: true
+        - volume:
+            source: some/source
+            destination: ./some/destination
+        - run:
+            runForm: shell
+            params:
+              - echo
+              - "\"test\""
+              - 1
+        - envVariable:
+            name: env
+            value: dev
+        - copy:
+            sources:
+              - /etc/conf
+            destination: /opt/app/conf
+            chown: me:me
+        - onbuild:
+            params:
+              - echo
+              - test
+      final:
+        - from:
+            image: alpine:latest
+            as: final
+        - arg:
+            name: test-arg
+            value: arg-value
+            test: true
+            envVariable: true
+        - label:
+            name: label1
+            value: label-value
+        - envVariable:
+            name: DB_PASSWORD
+            value: password
+        - cmd:
+            params:
+              - echo
+              - test
+            runForm: shell
+        - entrypoint:
+            params:
+              - echo
+              - test
+            runForm: exec
+        - healthCheck:
+            params:
+              - --interval=DURATION
+              - --timeout=3s
+              - CMD
+              - curl
+              - -f
+              - http://localhost/
+        - shell:
+            params:
+              - powershell
+              - -command
+        - workdir:
+            dir: "test dir"
