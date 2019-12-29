@@ -7,13 +7,13 @@ import (
 )
 
 func TestGetStagesOrderFromYamlNode(t *testing.T) {
-	d := &DockerfileDataYaml{}
-	node := &yaml.Node{}
+	d := DockerfileDataYaml{}
+	node := yaml.Node{}
 
-	err := unmarshallYamlFile("./example-input-files/test-input.yaml", node, d)
+	err := unmarshallYamlFile("./example-input-files/test-input.yaml", &node, &d)
 	assert.NoError(t, err)
 
-	stages, err := getStagesOrderFromYamlNode(node)
+	stages, err := getStagesOrderFromYamlNode(node.Content[0])
 	assert.NoError(t, err)
 	assert.Equal(t, stages, []string{"builder", "final"})
 }
