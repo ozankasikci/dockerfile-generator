@@ -430,9 +430,10 @@ func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYa
 		return fmt.Errorf("Unmarshal: %v", err)
 	}
 
-	err = node.Decode(data)
-	if err != nil {
-		return fmt.Errorf("Unmarshal: %v", err)
+	if data != nil {
+		if err = node.Decode(data); err != nil {
+			return fmt.Errorf("Unmarshal: %v", err)
+		}
 	}
 
 	return nil
@@ -440,18 +441,17 @@ func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYa
 
 func getStagesOrderFromYamlNode(node *yaml.Node) ([]string, error) {
 	var stages []string
-	parentMapNode := node.Content[0]
 
-	if parentMapNode.Kind != yaml.MappingNode {
+	if node.Kind != yaml.MappingNode {
 		return nil, errors.New("Yaml should contain a map that contains 'stages' key!")
 	}
 
-	stagesKeyNode := parentMapNode.Content[0]
+	stagesKeyNode := node.Content[0]
 	if stagesKeyNode.Kind != yaml.ScalarNode {
 		return nil, errors.New("Yaml should contain a 'stages' key!")
 	}
 
-	stagesMapNode := parentMapNode.Content[1]
+	stagesMapNode := node.Content[1]
 	if stagesMapNode.Kind != yaml.MappingNode {
 		return nil, errors.New("Yaml should contain a 'stages' map that has stage names as keys!")
 	}
