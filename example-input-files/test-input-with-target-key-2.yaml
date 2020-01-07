@@ -1,0 +1,74 @@
+dockerfileConfig:
+  stages:
+    builder:
+      - from:
+          image: alpine:latest
+          as: builder
+      - workdir:
+          dir: /app
+      - user: ozan
+      - arg:
+          name: test-arg
+          value: arg-value
+          test: true
+          envVariable: true
+      - volume:
+          source: some/source
+          destination: ./some/destination
+      - run:
+          runForm: shell
+          params:
+            - echo
+            - "\"test\""
+            - 1
+      - envVariable:
+          name: env
+          value: dev
+      - copy:
+          sources:
+            - /etc/conf
+          destination: /opt/app/conf
+          chown: me:me
+      - onbuild:
+          params:
+            - echo
+            - test
+    final:
+      - from:
+          image: alpine:latest
+          as: final
+      - arg:
+          name: test-arg
+          value: arg-value
+          test: true
+          envVariable: true
+      - label:
+          name: label1
+          value: label-value
+      - envVariable:
+          name: DB_PASSWORD
+          value: password
+      - cmd:
+          params:
+            - echo
+            - test
+          runForm: shell
+      - entrypoint:
+          params:
+            - echo
+            - test
+          runForm: exec
+      - healthCheck:
+          params:
+            - --interval=DURATION
+            - --timeout=3s
+            - CMD
+            - curl
+            - -f
+            - http://localhost/
+      - shell:
+          params:
+            - powershell
+            - -command
+      - workdir:
+          dir: "test dir"
