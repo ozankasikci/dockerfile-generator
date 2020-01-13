@@ -72,10 +72,7 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 			}
 
 			for pos, curContent := range curNode.Content {
-				println(curContent.Value)
 				if curContent.Value == part.val {
-					println(part.val)
-					println(pos)
                     curNode = curNode.Content[pos + 1]
                     break
 				}
