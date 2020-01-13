@@ -13,10 +13,11 @@ const (
 )
 
 type cmdGenerateConfig struct {
-	input     string
-	output    string
-	inputType string
-	stdout    bool
+	input       string
+	output      string
+	inputType   string
+	stdout      bool
+	targetField string
 }
 
 // NewCmdGenerate generates a command that is responsible for generating a Dockerfile output
@@ -43,13 +44,21 @@ func NewCmdGenerate() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&cfg.output, "out", "o", "", "Output file path")
 	cmd.PersistentFlags().BoolVar(&cfg.stdout, "stdout", false, "When true, output will be redirected to stdout")
 	cmd.PersistentFlags().StringVarP(&cfg.inputType, "type", "t", "", "Input type (yaml-file)")
+	cmd.PersistentFlags().StringVar(&cfg.targetField, "target-field", "", "Identifies which key-value pair should be used in the file")
 
 	return cmd
 }
 
 func generateFromYAMLFile(cfg *cmdGenerateConfig) error {
 	var outputTarget io.Writer
-	data, err := dfg.NewDockerFileDataFromYamlFile(cfg.input)
+	var data *dfg.DockerfileData
+	var err error
+
+	if cfg.targetField == "" {
+		data, err = dfg.NewDockerFileDataFromYamlFile(cfg.input)
+	} else {
+		data, err = dfg.NewDockerFileDataFromYamlField(cfg.input, cfg.targetField)
+	}
 	if err != nil {
 		return err
 	}
