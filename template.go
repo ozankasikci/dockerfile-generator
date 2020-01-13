@@ -23,7 +23,7 @@ func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
 }
 
 func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
-	type part struct{
+	type part struct {
 		kind   string
 		val    string
 		intVal int
@@ -34,7 +34,7 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 
 	for _, char := range targetField {
 		if char == '.' {
-            curPart = part{kind: "map"}
+			curPart = part{kind: "map"}
 			parts = append(parts, curPart)
 			continue
 		} else if char == '[' {
@@ -63,18 +63,18 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 		}
 	}
 
-    curNode := node.Content[0]
+	curNode := node.Content[0]
 
 	for _, part := range parts {
-		if	part.kind == "map" {
+		if part.kind == "map" {
 			if curNode.Kind != yaml.MappingNode {
 				return nil, fmt.Errorf("Expected a map with key %s", part.val)
 			}
 
 			for pos, curContent := range curNode.Content {
 				if curContent.Value == part.val {
-                    curNode = curNode.Content[pos + 1]
-                    break
+					curNode = curNode.Content[pos+1]
+					break
 				}
 			}
 		}
