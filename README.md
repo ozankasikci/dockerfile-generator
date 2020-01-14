@@ -34,21 +34,21 @@ It is especially useful for generating Dockerfile instructions conditionally sin
 * MacOS
 
 ```shell
-curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v0.1.0_darwin_amd64
+curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v1.0.0_darwin_amd64
 chmod +x dfg && sudo mv dfg /usr/local/bin
 ```
 
 * Linux
 
 ```shell
-curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v0.1.0_linux_amd64
+curl -o dfg -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v1.0.0_linux_amd64
 chmod +x dfg && sudo mv dfg /usr/local/bin
 ```
 
 * Windows
 
 ```shell
-curl -o dfg.exe -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v0.1.0_windows_amd64.exe
+curl -o dfg.exe -L https://github.com/ozankasikci/dockerfile-generator/releases/download/v1.0.0/dfg_v1.0.0_windows_amd64.exe
 ```
 
 #### Installing as a Library
