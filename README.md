@@ -18,7 +18,8 @@
   * [Using dfg as an Executable](#using-dfg-as-an-executable)
   * [Using dfg as a Library](#using-dfg-as-a-library)
 - [Examples](#examples)
-  * [YAML File Example](#yaml-file-example)
+  * [YAML File Per Dockerfile Example](#single-yaml-file-per-dockerfile-example-expects-a-stages-key-on-top-level)
+  * [YAML File Target Field Example](#yaml-file-example-with-target-field-allows-using-any-field)
   * [Library Usage Example](#library-usage-example)
 - [TODO](#todo)
 
@@ -80,7 +81,7 @@ For detailed usage example please see [Library Usage Example](#library-usage-exa
 
 ## Examples
 
-#### Single YAML File per Dockerfile Example
+#### Single YAML File per Dockerfile Example (Expects a stages key on top level)
 ```yaml
 stages:
   final:
@@ -120,7 +121,7 @@ RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get cle
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 ```
 
-#### YAML File Example With Multiple Configurations (Allows using an existing YAML file)
+#### YAML File Example With Target Field (Allows using any field)
 ```yaml
 someConfig:
   key: value
