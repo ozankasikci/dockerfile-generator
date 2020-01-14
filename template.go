@@ -22,11 +22,16 @@ func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
 	return &DockerfileTemplate{Data: data}
 }
 
+// Tries to return a *yaml.Node based on the given targetField
 func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 	type part struct {
 		kind   string
 		val    string
 		intVal int
+	}
+
+	last := func(parts []part) *part {
+		return &(parts[len(parts)-1])
 	}
 
 	var parts []part
@@ -42,15 +47,16 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 			parts = append(parts, curPart)
 			continue
 		} else if char == ']' {
-			if len(parts) == 0 || parts[len(parts)-1].kind != "seq" {
+			if len(parts) == 0 || last(parts).kind != "seq" {
 				return nil, fmt.Errorf("invalid target-val %s", targetField)
 			}
-			intVal, err := strconv.Atoi(parts[len(parts)-1].val)
+
+			intVal, err := strconv.Atoi(last(parts).val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid target-val %s", targetField)
 			}
 
-			parts[len(parts)-1].intVal = intVal
+			last(parts).intVal = intVal
 			continue
 		}
 
@@ -59,7 +65,7 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 		}
 
 		if len(parts) > 0 {
-			parts[len(parts)-1].val += string(char)
+			last(parts).val += string(char)
 		}
 	}
 
@@ -77,17 +83,46 @@ func getTargetNode(node *yaml.Node, targetField string) (*yaml.Node, error) {
 					break
 				}
 			}
+		} else if part.kind == "seq" {
+			if curNode.Kind != yaml.SequenceNode {
+				return nil, fmt.Errorf("Expected a seq with key %s", part.val)
+			}
+
+			curNode = curNode.Content[part.intVal]
 		}
 	}
 
 	return curNode, nil
 }
 
+func getStagesDataFromNode(node *yaml.Node) ([]Stage, error) {
+	var data DockerfileDataYaml
+
+	stagesInOrder, err := getStagesOrderFromYamlNode(node)
+	if err != nil {
+		return nil, fmt.Errorf("Unmarshal: %v", err)
+	}
+
+	if err := node.Decode(&data); err != nil {
+		return nil, err
+	}
+
+	var stages []Stage
+	for _, stageName := range stagesInOrder {
+		stages = append(stages, data.Stages[stageName])
+	}
+
+	return stages, nil
+}
+
+// NewDockerFileDataFromYamlField reads a YAML file and tries to extract Dockerfile data
+// from the specified targetField option, examples:
+// --target-field ".dev.dockerfileConfig"
+// --target-field ".serverConfigs[0].docker.server"
 func NewDockerFileDataFromYamlField(filename, targetField string) (*DockerfileData, error) {
-	d := DockerfileDataYaml{}
 	node := yaml.Node{}
 
-	err := unmarshallYamlFile(filename, &node, &d)
+	err := unmarshallYamlFile(filename, &node)
 	if err != nil {
 		return nil, fmt.Errorf("Unmarshal: %v", err)
 	}
@@ -97,18 +132,9 @@ func NewDockerFileDataFromYamlField(filename, targetField string) (*DockerfileDa
 		return nil, fmt.Errorf("Can't decode target val: %v", err)
 	}
 
-	stagesInOrder, err := getStagesOrderFromYamlNode(targetNode)
+	stages, err := getStagesDataFromNode(targetNode)
 	if err != nil {
-		return nil, fmt.Errorf("Unmarshal: %v", err)
-	}
-
-	if err := targetNode.Decode(&d); err != nil {
-		return nil, err
-	}
-
-	var stages []Stage
-	for _, stageName := range stagesInOrder {
-		stages = append(stages, d.Stages[stageName])
+		return nil, fmt.Errorf("Can't extract stages from node: %v", err)
 	}
 
 	return &DockerfileData{Stages: stages}, nil
@@ -116,22 +142,17 @@ func NewDockerFileDataFromYamlField(filename, targetField string) (*DockerfileDa
 
 // NewDockerFileDataFromYamlFile reads a file and return a *DockerfileData
 func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
-	d := DockerfileDataYaml{}
 	node := yaml.Node{}
 
-	err := unmarshallYamlFile(filename, &node, &d)
+	err := unmarshallYamlFile(filename, &node)
 	if err != nil {
 		return nil, fmt.Errorf("Unmarshal: %v", err)
 	}
 
-	stagesInOrder, err := getStagesOrderFromYamlNode(node.Content[0])
+	// passing node.Content[0] because the file is expected to store solely the dockerfile config
+	stages, err := getStagesDataFromNode(node.Content[0])
 	if err != nil {
-		return nil, fmt.Errorf("Unmarshal: %v", err)
-	}
-
-	var stages []Stage
-	for _, stageName := range stagesInOrder {
-		stages = append(stages, d.Stages[stageName])
+		return nil, fmt.Errorf("Can't extract stages from node: %v", err)
 	}
 
 	return &DockerfileData{Stages: stages}, nil
