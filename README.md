@@ -63,6 +63,8 @@ Available commands:
 
 `dfg generate --input path/to/yaml --out Dockerfile` generates a file named `Dockerfile`
 
+`dfg generate --input path/to/yaml --target-field ".server.dockerfile" --out Dockerfile` generates a file named `Dockerfile` reading the `.server.dockerfile` field of the YAML file.
+
 `dfg generate --help` lists available flags
 
 ### Using dfg as a Library
@@ -78,7 +80,7 @@ For detailed usage example please see [Library Usage Example](#library-usage-exa
 
 ## Examples
 
-#### YAML File Example
+#### Single YAML File per Dockerfile Example
 ```yaml
 stages:
   final:
@@ -118,6 +120,41 @@ RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get cle
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 ```
 
+#### YAML File Example With Multiple Configurations (Allows using an existing YAML file)
+```yaml
+someConfig:
+  key: value
+serverConfig:
+  dockerfile:
+    stages:
+      final:
+        - from:
+            image: kstaken/apache2
+        - run:
+            runForm: shell
+            params:
+              - apt-get update &&
+              - apt-get clean &&
+              - rm -rf /var/lib/apt/lists/*
+```
+Use dfg as binary:
+```shell
+dfg generate -i ./example-input-files/test-input-with-target-key-6.yaml --target-field ".serverConfig.dockerfile" --stdout
+```
+Or as a library
+```go
+data, err := dfg.NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-6.yaml", ".serverConfig.dockerfile")
+tmpl := dfg.NewDockerfileTemplate(data)
+err = tmpl.Render(output)
+```
+
+#### Output
+
+```dockerfile
+FROM kstaken/apache2
+RUN apt-get update && apt-get clean && rm -rf /var/lib/apt/lists/*
+```
+
 #### Library Usage Example
 
 ```go
@@ -138,7 +175,7 @@ func main() {
 					User: "ozan",
 				},
 				dfg.Workdir{
-					Dir: "/go/src/github.com/alexellis/href-counter/",
+					Dir: "/go/src/github.com/ozankasikci/dockerfile-generator/",
 				},
 				dfg.RunCommand{
 					Params: []string{"go", "get", "-d", "-v", "golang.org/x/net/html"},
@@ -165,7 +202,7 @@ func main() {
 					Dir: "/root/",
 				},
 				dfg.CopyCommand{
-					From: "builder", Sources: []string{"/go/src/github.com/alexellis/href-counter/app"}, Destination: ".",
+					From: "builder", Sources: []string{"/go/src/github.com/ozankasikci/dockerfile-generator/app"}, Destination: ".",
 				},
 				dfg.Cmd{
 					Params: []string{"./app"},
@@ -188,7 +225,7 @@ func main() {
 ```Dockerfile
 FROM golang:1.7.3 as builder
 USER ozan
-WORKDIR /go/src/github.com/alexellis/href-counter/
+WORKDIR /go/src/github.com/ozankasikci/dockerfile-generator/
 RUN go get -d -v golang.org/x/net/html
 COPY app.go .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
@@ -197,12 +234,12 @@ FROM alpine:latest as final
 RUN apk --no-cache add ca-certificates
 USER root:admin
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
+COPY --from=builder /go/src/github.com/ozankasikci/dockerfile-generator/app .
 CMD ["./app"]
 ```
 
 ## TODO
-- [ ] Add reading Dockerfile data from an existing yaml file support
+- [x] Add reading Dockerfile data from an existing yaml file support
 - [ ] Implement json file input channel
 - [ ] Implement stdin input channel
 - [ ] Implement toml file input channel
