@@ -420,7 +420,7 @@ func cleanUpMapValue(v interface{}) Instruction {
 	}
 }
 
-func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYaml) error {
+func unmarshallYamlFile(filename string, node *yaml.Node) error {
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("yamlFile.Get err #%v", err)
@@ -428,12 +428,6 @@ func unmarshallYamlFile(filename string, node *yaml.Node, data *DockerfileDataYa
 	err = yaml.Unmarshal(yamlFile, node)
 	if err != nil {
 		return fmt.Errorf("Unmarshal: %v", err)
-	}
-
-	if data != nil {
-		if err = node.Decode(data); err != nil {
-			return fmt.Errorf("Unmarshal: %v", err)
-		}
 	}
 
 	return nil
