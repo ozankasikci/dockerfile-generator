@@ -6,6 +6,32 @@ import (
 	"testing"
 )
 
+var expectedGenericOutput = `FROM alpine:latest as builder
+WORKDIR /app
+USER ozan
+ARG test-arg=arg-value
+RUN test -n "${test-arg}"
+ENV test-arg="${test-arg}"
+VOLUME some/source ./some/destination
+RUN echo "test" 1
+ENV env=dev
+COPY --chown=me:me /etc/conf /opt/app/conf
+ONBUILD echo test
+
+FROM alpine:latest as final
+ARG test-arg=arg-value
+RUN test -n "${test-arg}"
+ENV test-arg="${test-arg}"
+LABEL label1=label-value
+ENV DB_PASSWORD=password
+CMD echo test
+ENTRYPOINT ["echo", "test"]
+HEALTHCHECK --interval=DURATION --timeout=3s CMD curl -f http://localhost/
+SHELL ["powershell", "-command"]
+WORKDIR test dir
+
+`
+
 func TestCodeRendering(t *testing.T) {
 	data := &DockerfileData{
 		Stages: []Stage{
@@ -151,33 +177,7 @@ func TestYamlRendering(t *testing.T) {
 	err = tmpl.Render(output)
 	assert.NoError(t, err)
 
-	expectedOutput := `FROM alpine:latest as builder
-WORKDIR /app
-USER ozan
-ARG test-arg=arg-value
-RUN test -n "${test-arg}"
-ENV test-arg="${test-arg}"
-VOLUME some/source ./some/destination
-RUN echo "test" 1
-ENV env=dev
-COPY --chown=me:me /etc/conf /opt/app/conf
-ONBUILD echo test
-
-FROM alpine:latest as final
-ARG test-arg=arg-value
-RUN test -n "${test-arg}"
-ENV test-arg="${test-arg}"
-LABEL label1=label-value
-ENV DB_PASSWORD=password
-CMD echo test
-ENTRYPOINT ["echo", "test"]
-HEALTHCHECK --interval=DURATION --timeout=3s CMD curl -f http://localhost/
-SHELL ["powershell", "-command"]
-WORKDIR test dir
-
-`
-
-	assert.Equal(t, expectedOutput, output.String())
+	assert.Equal(t, expectedGenericOutput, output.String())
 }
 
 func TestYamlRenderingNoUser(t *testing.T) {
@@ -216,6 +216,116 @@ USER 1000:1000
 `
 
 	assert.Equal(t, expectedOutput, output.String())
+}
+
+func TestYamlRenderingTargetField1(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key.yaml", ".seq[3].dockerfileConfig")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	assert.Equal(t, expectedGenericOutput, output.String())
+}
+
+func TestYamlRenderingTargetField2(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-2.yaml", ".dockerfileConfig")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	assert.Equal(t, expectedGenericOutput, output.String())
+}
+
+func TestYamlRenderingTargetField3(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-3.yaml", "[0]")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	assert.Equal(t, expectedGenericOutput, output.String())
+}
+
+func TestYamlRenderingTargetField4(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-4.yaml", "[1]")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+
+	assert.Equal(t, expectedGenericOutput, output.String())
+}
+
+func TestYamlRenderingTargetField5(t *testing.T) {
+	tests := []struct {
+		name           string
+		targetField    string
+		expectedOutput string
+		expectError    bool
+	}{
+		{
+			name:        "ProdApache",
+			targetField: ".prod.apache",
+			expectedOutput: `FROM kstaken/apache2
+RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get clean && rm -rf /var/lib/apt/lists/*
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+`,
+		},
+		{
+			name:        "DevApache",
+			targetField: ".dev.apache",
+			expectedOutput: `FROM kstaken/apache2
+RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get clean && rm -rf /var/lib/apt/lists/*
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+`,
+		},
+		{
+			name:           "DevServer",
+			targetField:    ".dev.server",
+			expectedOutput: expectedGenericOutput,
+		},
+		{
+			expectError: true,
+			name:        "Invalid Apache",
+			targetField: ".invalid.apache",
+			expectedOutput: `FROM kstaken/apache2
+RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 && apt-get clean && rm -rf /var/lib/apt/lists/*
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-5.yaml", tt.targetField)
+			tmpl := NewDockerfileTemplate(data)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				return
+			} else {
+				assert.NoError(t, err)
+			}
+
+			output := &bytes.Buffer{}
+			err = tmpl.Render(output)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tt.expectedOutput, output.String())
+		})
+	}
 }
 
 func TestYamlRenderingFail(t *testing.T) {
