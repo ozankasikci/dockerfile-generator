@@ -18,7 +18,7 @@ func main() {
 					User: "ozan",
 				},
 				dfg.Workdir{
-					Dir: "/go/src/github.com/alexellis/href-counter/",
+					Dir: "/go/src/github.com/ozankasikci/dockerfile-generator/",
 				},
 				dfg.RunCommand{
 					Params: []string{"go", "get", "-d", "-v", "golang.org/x/net/html"},
@@ -45,7 +45,7 @@ func main() {
 					Dir: "/root/",
 				},
 				dfg.CopyCommand{
-					From: "builder", Sources: []string{"/go/src/github.com/alexellis/href-counter/app"}, Destination: ".",
+					From: "builder", Sources: []string{"/go/src/github.com/ozankasikci/dockerfile-generator/app"}, Destination: ".",
 				},
 				dfg.Cmd{
 					Params: []string{"./app"},

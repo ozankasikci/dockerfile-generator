@@ -328,6 +328,22 @@ CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 	}
 }
 
+func TestYamlRenderingTargetField6(t *testing.T) {
+	data, err := NewDockerFileDataFromYamlField("./example-input-files/test-input-with-target-key-6.yaml", ".serverConfig.dockerfile")
+	tmpl := NewDockerfileTemplate(data)
+	assert.NoError(t, err)
+
+	output := &bytes.Buffer{}
+	err = tmpl.Render(output)
+	assert.NoError(t, err)
+	expectedOutput := `FROM kstaken/apache2
+RUN apt-get update && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+`
+
+	assert.Equal(t, expectedOutput, output.String())
+}
+
 func TestYamlRenderingFail(t *testing.T) {
 	data, err := NewDockerFileDataFromYamlFile("./example-input-files/invalid-input.yaml")
 	tmpl := NewDockerfileTemplate(data)
