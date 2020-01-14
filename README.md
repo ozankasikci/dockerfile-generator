@@ -81,7 +81,7 @@ For detailed usage example please see [Library Usage Example](#library-usage-exa
 
 ## Examples
 
-#### Single YAML File per Dockerfile Example (Expects a stages key on top level)
+#### Single YAML File per Dockerfile Example (Expects a `stages` key on top level)
 ```yaml
 stages:
   final:
