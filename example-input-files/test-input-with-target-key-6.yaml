@@ -1,0 +1,14 @@
+someConfig:
+  key: value
+serverConfig:
+  dockerfile:
+    stages:
+      final:
+        - from:
+            image: kstaken/apache2
+        - run:
+            runForm: shell
+            params:
+              - apt-get update &&
+              - apt-get clean &&
+              - rm -rf /var/lib/apt/lists/*
