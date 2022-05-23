@@ -17,7 +17,7 @@ type DockerfileTemplate struct {
 	Data *DockerfileData
 }
 
-// NewDockerfileTemplate return a new NewDockerfileTemplate instance
+// NewDockerfileTemplate returns a new NewDockerfileTemplate instance
 func NewDockerfileTemplate(data *DockerfileData) *DockerfileTemplate {
 	return &DockerfileTemplate{Data: data}
 }
@@ -140,7 +140,7 @@ func NewDockerFileDataFromYamlField(filename, targetField string) (*DockerfileDa
 	return &DockerfileData{Stages: stages}, nil
 }
 
-// NewDockerFileDataFromYamlFile reads a file and return a *DockerfileData
+// NewDockerFileDataFromYamlFile reads a file and returns a *DockerfileData
 func NewDockerFileDataFromYamlFile(filename string) (*DockerfileData, error) {
 	node := yaml.Node{}
 
